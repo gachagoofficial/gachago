@@ -4754,3 +4754,63 @@ button.last-draw-bonus:focus-visible {
 /* 상세페이지 안에서는 슬롯 창 높이를 적당히 제한 */
 .gacha-draw .slot-window { max-height: 320px; }
 .draw-hint { margin-top: 6px; }
+
+/* ===== 상단 네비게이션 (신규 - 가로 정렬) ===== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: rgba(7,7,7,0.82);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 16px 32px;
+}
+.site-nav .brand-mark {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+}
+.nav-links li { margin: 0; }
+.nav-links a {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.72);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.nav-links a:hover { color: #fff; }
+
+/* 모바일: 좁은 화면에서 메뉴 숨기고 브랜드+로그인만 */
+@media (max-width: 820px) {
+  .site-nav { padding: 14px 18px; gap: 12px; }
+  .nav-links {
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    font-size: 13px;
+  }
+  .nav-links a { font-size: 13px; }
+}
