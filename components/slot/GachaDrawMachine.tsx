@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { SlotReel, type SlotReelHandle } from "./SlotReel";
 import { PurchaseButton } from "./PurchaseButton";
 import { AuthModal } from "@/components/auth/AuthModal";
@@ -99,7 +100,7 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
   };
 
   const buttonState = state === "loading" || state === "spinning" ? "loading" : "idle";
-  const showSlot = state === "spinning" || state === "done";
+  const showSlot = state === "spinning";
 
   return (
     <div className={`gacha-draw${state === "spinning" ? " is-spinning" : ""}`}>
@@ -125,23 +126,43 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
         <p className="draw-hint">뽑기하려면 로그인이 필요합니다.</p>
       )}
 
-      {state === "done" && result && (
-        <div className="draw-result" role="status">
-          <span className="draw-result__label">축하합니다! 획득 아이템</span>
-          <strong className="draw-result__name">{result.name}</strong>
-          {result.tier && <span className="draw-result__tier">{result.tier}</span>}
-          {result.value != null && (
-            <span className="draw-result__value">{formatWon(result.value)} 상당</span>
-          )}
-          {result.remaining_stock != null && (
-            <span className="draw-result__stock">남은 재고: {result.remaining_stock}</span>
-          )}
-        </div>
-      )}
-
       {state === "error" && error && (
         <div className="draw-error" role="alert">
           {error}
+        </div>
+      )}
+
+      {/* 뽑기 결과 모달 (화면 가운데 팝업 + 배경 어둡게) */}
+      {state === "done" && result && (
+        <div
+          className="result-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setState("idle");
+          }}
+        >
+          <div className="result-card" role="status">
+            <button
+              className="result-close"
+              onClick={() => setState("idle")}
+              aria-label="닫기"
+            >
+              ×
+            </button>
+            <span className="result-card__label">축하합니다! 획득 아이템</span>
+            <strong className="result-card__name">{result.name}</strong>
+            {result.tier && <span className="result-card__tier">{result.tier}</span>}
+            {result.value != null && (
+              <span className="result-card__value">{formatWon(result.value)} 상당</span>
+            )}
+            <div className="result-card__actions">
+              <Link href="/account" className="result-btn result-btn--primary">
+                마이페이지에서 확인
+              </Link>
+              <button className="result-btn" onClick={() => setState("idle")}>
+                닫기
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
