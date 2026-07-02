@@ -12,6 +12,7 @@ interface RewardRow {
   tier: string | null;
   value: number | null;
   stock: number;
+  initial_stock: number | null;
   image: string | null;
 }
 
@@ -28,25 +29,16 @@ interface TierMeta {
 export function RewardLineup({ packId }: { packId: string }) {
   const supabase = useMemo(() => createClient(), []);
   const [rewards, setRewards] = useState<RewardRow[] | null>(null);
-  // 최초 로드 시점의 총 재고를 기억 (분모로 사용: 현재/최초)
-  const [initialStock, setInitialStock] = useState<Record<string, number>>({});
 
   useEffect(() => {
     let cancelled = false;
     supabase
       .from("rewards")
-      .select("id, name, item, rarity, tier, value, stock, image")
+      .select("id, name, item, rarity, tier, value, stock, initial_stock, image")
       .eq("pack_id", packId)
       .then(({ data }) => {
         if (cancelled || !data) return;
-        const rows = data as RewardRow[];
-        setRewards(rows);
-        setInitialStock((prev) => {
-          if (Object.keys(prev).length > 0) return prev;
-          const map: Record<string, number> = {};
-          rows.forEach((r) => (map[r.id] = r.stock));
-          return map;
-        });
+        setRewards(data as RewardRow[]);
       });
     return () => {
       cancelled = true;
@@ -78,7 +70,7 @@ export function RewardLineup({ packId }: { packId: string }) {
           const meta = config[tierKey];
           const items = grouped[tierKey];
           const remaining = items.reduce((s, r) => s + (r.stock || 0), 0);
-          const total = items.reduce((s, r) => s + (initialStock[r.id] ?? r.stock), 0);
+          const total = items.reduce((s, r) => s + (r.initial_stock ?? r.stock), 0);
           return (
             <section
               key={tierKey}
@@ -99,7 +91,7 @@ export function RewardLineup({ packId }: { packId: string }) {
               </div>
               <div className={`reward-grid${tierKey === "legend" ? " legend-grid" : ""}`}>
                 {items.map((r) => {
-                  const rInitial = initialStock[r.id] ?? r.stock;
+                  const rInitial = r.initial_stock ?? r.stock;
                   return (
                     <div className={`reward-card reward-${meta?.tone ?? "standard"}`} key={r.id}>
                       <div className="reward-image">

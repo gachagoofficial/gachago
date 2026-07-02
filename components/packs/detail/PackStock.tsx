@@ -14,16 +14,19 @@ export function PackStock({ packId }: { packId: string }) {
     let cancelled = false;
 
     const load = async () => {
-      // 이 팩의 모든 보상 재고를 가져와 합산
+      // 이 팩의 모든 보상: 현재재고(stock) + 원래수량(initial_stock)
       const { data } = await supabase
         .from("rewards")
-        .select("stock")
+        .select("stock, initial_stock")
         .eq("pack_id", packId);
       if (cancelled || !data) return;
       const sum = data.reduce((s, r) => s + (r.stock || 0), 0);
+      const totalSum = data.reduce(
+        (s, r) => s + ((r.initial_stock as number) ?? r.stock ?? 0),
+        0,
+      );
       setRemaining(sum);
-      // 총량은 최초 로드 시점 값을 기준으로 (없으면 현재 합계)
-      setTotal((prev) => (prev == null ? sum : prev));
+      setTotal(totalSum);
     };
 
     load();
@@ -37,7 +40,7 @@ export function PackStock({ packId }: { packId: string }) {
   return (
     <div className="remaining-status">
       남은 수량 : {remaining}
-      {total != null && total !== remaining ? `/${total}` : ""}
+      {total != null ? `/${total}` : ""}
     </div>
   );
 }
