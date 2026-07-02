@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { allPacks, tierOrder, tierConfig } from "@/lib/data/catalog";
+import { allPacks } from "@/lib/data/catalog";
 import type { Pack } from "@/lib/data/types";
 import { GachaDrawMachine } from "@/components/slot/GachaDrawMachine";
 import { PackShowcaseVisual } from "@/components/packs/detail/PackShowcaseVisual";
-import { TierSection } from "@/components/packs/detail/TierSection";
+import { RewardLineup } from "@/components/packs/detail/RewardLineup";
 import { LastDrawBonus } from "@/components/packs/detail/LastDrawBonus";
 import { PackStock } from "@/components/packs/detail/PackStock";
 import { formatWon } from "@/lib/format";
@@ -35,13 +35,6 @@ export default async function PackDetailPage({
   if (!pack) notFound();
 
   const soldOut = (pack.remainingQuantity ?? 0) <= 0;
-
-  const order = tierOrder as string[];
-  const config = tierConfig as Record<
-    string,
-    { tone: string; label: string; accent: string; glow: string; shadow: string }
-  >;
-  const tiers = pack.tiers ?? {};
 
   return (
     <section className="pack-detail-page">
@@ -79,25 +72,14 @@ export default async function PackDetailPage({
         </div>
       </div>
 
-      {/* 하단: 당첨 가능 상품 (등급별) */}
+      {/* 하단: 당첨 가능 상품 (DB 실시간 재고) */}
       <section className="reward-section reveal delay-1">
         <div className="reward-heading">
           <p className="section-label">Reward Lineup</p>
           <h2>당첨 가능 상품</h2>
           <p>이 팩에서 등장할 수 있는 리워드를 티어별로 확인하세요.</p>
         </div>
-        <div className="tier-stack">
-          {order
-            .filter((tierKey) => (tiers[tierKey] || []).length > 0)
-            .map((tierKey) => (
-              <TierSection
-                key={tierKey}
-                tierKey={tierKey}
-                meta={config[tierKey]}
-                items={tiers[tierKey] || []}
-              />
-            ))}
-        </div>
+        <RewardLineup packId={pack.id} />
       </section>
     </section>
   );
