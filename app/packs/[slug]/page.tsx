@@ -6,6 +6,7 @@ import { GachaDrawMachine } from "@/components/slot/GachaDrawMachine";
 import { PackShowcaseVisual } from "@/components/packs/detail/PackShowcaseVisual";
 import { TierSection } from "@/components/packs/detail/TierSection";
 import { LastDrawBonus } from "@/components/packs/detail/LastDrawBonus";
+import { PackStock } from "@/components/packs/detail/PackStock";
 import { formatWon } from "@/lib/format";
 
 export function generateStaticParams() {
@@ -34,10 +35,6 @@ export default async function PackDetailPage({
   if (!pack) notFound();
 
   const soldOut = (pack.remainingQuantity ?? 0) <= 0;
-  const totalQuantity = Number.isFinite(pack.totalQuantity) ? pack.totalQuantity! : null;
-  const remainingQuantity = Number.isFinite(pack.remainingQuantity)
-    ? pack.remainingQuantity!
-    : totalQuantity;
 
   const order = tierOrder as string[];
   const config = tierConfig as Record<
@@ -55,11 +52,7 @@ export default async function PackDetailPage({
         </div>
         <div className="pack-detail-copy is-minimal">
           <h1>{pack.koreanName || pack.title}</h1>
-          {remainingQuantity != null && totalQuantity != null && (
-            <div className="remaining-status">
-              남은 수량 : {remainingQuantity}/{totalQuantity}
-            </div>
-          )}
+          <PackStock packId={pack.id} />
           <div className="detail-price-row">
             <span>팩 가격</span>
             <strong>{formatWon(pack.priceValue)}</strong>
