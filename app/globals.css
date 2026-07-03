@@ -4893,3 +4893,30 @@ button.last-draw-bonus:focus-visible {
 
 /* 실시간 피드 빈 상태 */
 .live-feed-empty { padding: 32px 12px; text-align: center; font-size: 14px; line-height: 1.7; color: var(--drawzy-mute, #a0a0a0); }
+
+/* ===== SOLD OUT 오버레이 (팩 카드) ===== */
+.pack-image-shell { position: relative; }
+.soldout-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.66);
+  backdrop-filter: blur(2px);
+  border-radius: inherit;
+  z-index: 2;
+}
+.soldout-overlay span {
+  padding: 10px 26px;
+  border: 2px solid rgba(255,255,255,0.85);
+  border-radius: 8px;
+  transform: rotate(-8deg);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.92);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+.pack-card.is-soldout .pack-image { filter: grayscale(0.7) brightness(0.75); }
+.pack-card.is-soldout .pack-price { color: var(--drawzy-mute, #a0a0a0); }

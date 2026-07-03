@@ -1,10 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { allPacks } from "@/lib/data/catalog";
 import type { Pack } from "@/lib/data/types";
 import { PackCard } from "@/components/packs/PackCard";
+import { usePackStocks } from "@/lib/hooks/usePackStocks";
 
-// 추천 팩 6개 (홈).
+// 추천 팩 6개 (홈). DB 실시간 재고 반영.
 export function FeaturedPacks() {
+  const stocks = usePackStocks();
   const packs = (allPacks as Pack[]).slice(0, 6);
 
   return (
@@ -23,7 +27,7 @@ export function FeaturedPacks() {
       </div>
       <div className="featured-pack-grid">
         {packs.map((pack) => (
-          <PackCard pack={pack} key={pack.id} />
+          <PackCard pack={pack} stockInfo={stocks?.[pack.id]} key={pack.id} />
         ))}
       </div>
     </section>

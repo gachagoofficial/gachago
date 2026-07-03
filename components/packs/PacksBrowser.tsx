@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { allPacks } from "@/lib/data/catalog";
 import type { Pack } from "@/lib/data/types";
 import { PackCard } from "./PackCard";
+import { usePackStocks } from "@/lib/hooks/usePackStocks";
 
 const CATEGORY_OPTIONS = ["전체", "지갑", "가방", "시계", "전자제품", "의류"];
 const SORT_OPTIONS = ["인기순", "최신순", "가격 낮은순", "가격 높은순"];
@@ -18,6 +19,7 @@ function sortItems(items: Pack[], sortBy: string): Pack[] {
 
 // 팩 목록 + 검색/카테고리/정렬 필터.
 export function PacksBrowser() {
+  const stocks = usePackStocks();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("전체");
   const [sortBy, setSortBy] = useState("인기순");
@@ -64,7 +66,7 @@ export function PacksBrowser() {
 
       <div className="catalog-grid pack-catalog-grid">
         {packs.map((pack) => (
-          <PackCard pack={pack} key={pack.id} />
+          <PackCard pack={pack} stockInfo={stocks?.[pack.id]} key={pack.id} />
         ))}
       </div>
     </div>
