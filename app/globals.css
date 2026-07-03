@@ -4941,7 +4941,7 @@ button.last-draw-bonus:focus-visible {
 .site-footer.footer-glow {
   max-width: 1180px;
   margin: 60px auto 0;
-  padding: 80px 32px 64px;
+  padding: 130px 32px 80px;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 .footer-top {

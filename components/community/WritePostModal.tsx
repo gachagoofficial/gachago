@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-const CATEGORIES = ["자유", "후기", "자랑"];
+const CATEGORIES = ["자유", "후기", "이벤트", "1:1 문의"];
 
 // 글쓰기 모달. 작성자명은 프로필 닉네임(없으면 이메일 앞부분)으로 저장.
 export function WritePostModal({

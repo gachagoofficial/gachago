@@ -18,7 +18,7 @@ export interface Post {
   created_at: string;
 }
 
-const CATEGORIES = ["전체", "공지", "자유", "후기", "자랑"];
+const CATEGORIES = ["전체", "공지", "자유", "후기", "이벤트", "1:1 문의"];
 
 // 커뮤니티 게시판 (DB 기반 + 글쓰기).
 export function CommunityBoard() {
