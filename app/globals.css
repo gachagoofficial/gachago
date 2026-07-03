@@ -4920,3 +4920,19 @@ button.last-draw-bonus:focus-visible {
 }
 .pack-card.is-soldout .pack-image { filter: grayscale(0.7) brightness(0.75); }
 .pack-card.is-soldout .pack-price { color: var(--drawzy-mute, #a0a0a0); }
+
+/* 실시간 피드 더보기 버튼 */
+.live-feed-more {
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.live-feed-more:hover { background: rgba(255,255,255,0.07); color: #fff; }
