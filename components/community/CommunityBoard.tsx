@@ -1,78 +1,144 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { boardPosts, communityCategories } from "@/lib/data/catalog";
-import { CategoryTabs } from "./CategoryTabs";
-import { BoardRow } from "./BoardRow";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { createClient } from "@/lib/supabase/client";
+import { WritePostModal } from "./WritePostModal";
+import { PostDetailModal } from "./PostDetailModal";
 
-interface BoardPost {
-  id: string | number;
+export interface Post {
+  id: string;
+  user_id: string | null;
+  author_name: string | null;
+  category: string | null;
   title: string;
-  category?: string;
-  author?: string;
-  [key: string]: unknown;
+  content: string | null;
+  is_notice: boolean;
+  created_at: string;
 }
 
-// 커뮤니티 게시판 (카테고리 탭 + 검색 + 목록).
-export function CommunityBoard() {
-  const [activeCategory, setActiveCategory] = useState("전체");
-  const [searchType, setSearchType] = useState("제목");
-  const [query, setQuery] = useState("");
-  const [submittedQuery, setSubmittedQuery] = useState("");
+const CATEGORIES = ["전체", "공지", "자유", "후기", "자랑"];
 
-  const posts = useMemo(() => {
-    const keyword = submittedQuery.trim().toLowerCase();
-    return (boardPosts as BoardPost[]).filter((post) => {
-      const categoryMatch = activeCategory === "전체" || post.category === activeCategory;
-      const haystack = String(
-        (searchType === "작성자" ? post.author : post.title) ?? "",
-      ).toLowerCase();
-      const searchMatch = !keyword || haystack.includes(keyword);
-      return categoryMatch && searchMatch;
+// 커뮤니티 게시판 (DB 기반 + 글쓰기).
+export function CommunityBoard() {
+  const { user } = useAuth();
+  const supabase = useMemo(() => createClient(), []);
+  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [activeCategory, setActiveCategory] = useState("전체");
+  const [query, setQuery] = useState("");
+  const [showWrite, setShowWrite] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [openPost, setOpenPost] = useState<Post | null>(null);
+
+  const load = () => {
+    supabase
+      .from("posts")
+      .select("*")
+      .order("is_notice", { ascending: false })
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setPosts((data as Post[]) || []));
+  };
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const filtered = useMemo(() => {
+    const kw = query.trim().toLowerCase();
+    return (posts || []).filter((p) => {
+      const catMatch = activeCategory === "전체" || p.category === activeCategory;
+      const kwMatch = !kw || p.title.toLowerCase().includes(kw);
+      return catMatch && kwMatch;
     });
-  }, [activeCategory, searchType, submittedQuery]);
+  }, [posts, activeCategory, query]);
+
+  const onWriteClick = () => {
+    if (!user) {
+      setShowAuth(true);
+      return;
+    }
+    setShowWrite(true);
+  };
 
   return (
     <div className="subpage-inner community-shell">
-      <CategoryTabs
-        items={communityCategories as string[]}
-        active={activeCategory}
-        onChange={setActiveCategory}
-      />
-      <div className="community-toolbar">
-        <div className="community-search">
-          <select
-            value={searchType}
-            onChange={(e) => setSearchType(e.target.value)}
-            aria-label="검색 기준"
+      {/* 카테고리 탭 */}
+      <div className="community-tabs">
+        {CATEGORIES.map((c) => (
+          <button
+            key={c}
+            className={`community-tab${activeCategory === c ? " is-active" : ""}`}
+            onClick={() => setActiveCategory(c)}
           >
-            <option>제목</option>
-            <option>작성자</option>
-          </select>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="검색어를 입력하세요"
-          />
-          <button onClick={() => setSubmittedQuery(query)}>검색</button>
-        </div>
-        <button className="write-button">글쓰기</button>
-      </div>
-      <div className="board-list">
-        {posts.map((post) => (
-          <BoardRow post={post as never} key={post.id} />
+            {c}
+          </button>
         ))}
       </div>
-      <div className="pagination-row">
-        <button>이전</button>
-        <button className="active">1</button>
-        <button>2</button>
-        <button>3</button>
-        <span>…</span>
-        <button>42</button>
-        <button>다음</button>
-        <strong>총 {(boardPosts as BoardPost[]).length}개의 게시글</strong>
+
+      {/* 툴바: 검색 + 글쓰기 */}
+      <div className="community-toolbar">
+        <input
+          className="community-search-input"
+          placeholder="제목 검색"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <button className="community-write-btn" onClick={onWriteClick}>
+          ✏ 글쓰기
+        </button>
       </div>
+
+      {/* 목록 */}
+      <div className="community-list">
+        {posts === null && <p className="draw-history-empty">불러오는 중...</p>}
+        {posts !== null && filtered.length === 0 && (
+          <p className="draw-history-empty">아직 글이 없습니다. 첫 글을 남겨보세요!</p>
+        )}
+        {filtered.map((p) => (
+          <button
+            key={p.id}
+            className={`community-post-row${p.is_notice ? " is-notice" : ""}`}
+            onClick={() => setOpenPost(p)}
+          >
+            <div className="community-post-main">
+              {p.is_notice && <span className="notice-badge">공지</span>}
+              {!p.is_notice && p.category && (
+                <span className="community-cat">{p.category}</span>
+              )}
+              <span className="community-post-title">{p.title}</span>
+            </div>
+            <div className="community-post-meta">
+              <span>{p.author_name || "익명"}</span>
+              <span>{new Date(p.created_at).toLocaleDateString("ko-KR")}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {showWrite && user && (
+        <WritePostModal
+          userId={user.id}
+          close={() => setShowWrite(false)}
+          onPosted={() => {
+            setShowWrite(false);
+            load();
+          }}
+        />
+      )}
+      {openPost && (
+        <PostDetailModal
+          post={openPost}
+          currentUserId={user?.id}
+          close={() => setOpenPost(null)}
+          onDeleted={() => {
+            setOpenPost(null);
+            load();
+          }}
+        />
+      )}
+      {showAuth && <AuthModal initialMode="login" close={() => setShowAuth(false)} />}
     </div>
   );
 }
