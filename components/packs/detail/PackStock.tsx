@@ -30,8 +30,11 @@ export function PackStock({ packId }: { packId: string }) {
     };
 
     load();
+    // 뽑기 성공 시 즉시 재조회 (새로고침 불필요)
+    window.addEventListener("gacha:stock-changed", load);
     return () => {
       cancelled = true;
+      window.removeEventListener("gacha:stock-changed", load);
     };
   }, [packId, supabase]);
 

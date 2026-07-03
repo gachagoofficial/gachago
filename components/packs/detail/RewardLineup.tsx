@@ -32,16 +32,24 @@ export function RewardLineup({ packId }: { packId: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    supabase
-      .from("rewards")
-      .select("id, name, item, rarity, tier, value, stock, initial_stock, image")
-      .eq("pack_id", packId)
-      .then(({ data }) => {
-        if (cancelled || !data) return;
-        setRewards(data as RewardRow[]);
-      });
+
+    const load = () => {
+      supabase
+        .from("rewards")
+        .select("id, name, item, rarity, tier, value, stock, initial_stock, image")
+        .eq("pack_id", packId)
+        .then(({ data }) => {
+          if (cancelled || !data) return;
+          setRewards(data as RewardRow[]);
+        });
+    };
+
+    load();
+    // 뽑기 성공 시 즉시 재조회 (새로고침 불필요)
+    window.addEventListener("gacha:stock-changed", load);
     return () => {
       cancelled = true;
+      window.removeEventListener("gacha:stock-changed", load);
     };
   }, [packId, supabase]);
 

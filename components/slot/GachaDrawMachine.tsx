@@ -93,6 +93,9 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
 
       setResult(reward);
       setState("done");
+
+      // ★ 재고 표시 컴포넌트들에게 "재고 바뀜" 신호 → 새로고침 없이 즉시 갱신
+      window.dispatchEvent(new CustomEvent("gacha:stock-changed"));
     } catch (e) {
       setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.");
       setState("error");
