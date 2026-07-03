@@ -1,20 +1,53 @@
 "use client";
 
-import { feedSeed, tierConfig } from "@/lib/data/catalog";
+import { useEffect, useMemo, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { tierConfig } from "@/lib/data/catalog";
 
-interface FeedItem {
-  id: string | number;
-  name: string;
-  rarity?: string;
-  pack?: string;
-  product?: string;
-  time?: string;
+interface FeedRow {
+  id: string;
+  winner_name: string;
+  created_at: string;
+  reward_name: string;
+  rarity: string | null;
+  tier: string | null;
+  pack_title: string | null;
 }
 
-// 실시간 당첨 현황 (홈). 원본의 FLIP 애니메이션은 단순화하고 목록만 표시.
+// "n분 전" 형식의 상대 시간
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "방금 전";
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}시간 전`;
+  return `${Math.floor(hr / 24)}일 전`;
+}
+
+// 실시간 당첨 현황 (진짜 DB 데이터).
+// public_feed 뷰에서 좋은 상품 당첨만 조회 + 30초마다 자동 갱신.
 export function LiveFeed() {
-  const feed = feedSeed as FeedItem[];
+  const supabase = useMemo(() => createClient(), []);
+  const [feed, setFeed] = useState<FeedRow[] | null>(null);
   const tiers = tierConfig as Record<string, { accent: string; glow: string }>;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      const { data } = await supabase.from("public_feed").select("*");
+      if (cancelled) return;
+      setFeed((data as FeedRow[]) || []);
+    };
+
+    load();
+    const timer = setInterval(load, 30000); // 30초마다 갱신
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [supabase]);
 
   return (
     <aside className="live-feed-panel glass-panel rounded-[24px] p-5">
@@ -29,35 +62,48 @@ export function LiveFeed() {
         </div>
       </div>
       <div className="live-feed-list">
-        {feed.map((item) => {
-          const rarityMeta = tiers[item.rarity?.toLowerCase() ?? ""] || tiers.standard;
-          const isRandom = item.product === "랜덤 상품";
+        {feed === null && (
+          <p className="live-feed-empty">불러오는 중...</p>
+        )}
+        {feed !== null && feed.length === 0 && (
+          <p className="live-feed-empty">
+            아직 당첨 소식이 없습니다.
+            <br />첫 번째 럭셔리 당첨의 주인공이 되어보세요!
+          </p>
+        )}
+        {(feed || []).map((item) => {
+          const rarityMeta =
+            tiers[(item.rarity || item.tier || "").toLowerCase()] || tiers.standard;
           return (
             <article
-              className={`live-feed-item rounded-2xl border p-3${isRandom ? " is-random" : ""}`}
+              className="live-feed-item rounded-2xl border p-3"
               key={item.id}
               style={
                 {
-                  "--feed-accent": isRandom ? "rgba(255,255,255,0.4)" : rarityMeta?.accent,
-                  "--feed-glow": isRandom ? "transparent" : rarityMeta?.glow,
+                  "--feed-accent": rarityMeta?.accent,
+                  "--feed-glow": rarityMeta?.glow,
                 } as React.CSSProperties
               }
             >
               <div
                 className="avatar-ring grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-black"
-                style={{ color: isRandom ? "rgba(255,255,255,0.72)" : rarityMeta?.accent }}
+                style={{ color: rarityMeta?.accent }}
               >
-                {item.name[0]}
+                {item.winner_name?.[0] ?? "유"}
               </div>
               <div className="live-feed-copy min-w-0">
                 <div className="live-feed-head">
-                  <h4 className="truncate text-sm font-black text-white">{item.name}</h4>
-                  <span className="live-feed-rarity">{item.rarity}</span>
+                  <h4 className="truncate text-sm font-black text-white">
+                    {item.winner_name}
+                  </h4>
+                  <span className="live-feed-rarity">{item.rarity || item.tier}</span>
                 </div>
-                <p className="live-feed-pack">{item.pack}</p>
-                <p className="live-feed-product">{item.product}</p>
+                <p className="live-feed-pack">{item.pack_title}</p>
+                <p className="live-feed-product">{item.reward_name}</p>
               </div>
-              <time className="shrink-0 text-xs font-bold text-white/38">{item.time}</time>
+              <time className="shrink-0 text-xs font-bold text-white/38">
+                {timeAgo(item.created_at)}
+              </time>
             </article>
           );
         })}

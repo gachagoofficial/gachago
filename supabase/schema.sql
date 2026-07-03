@@ -68,7 +68,8 @@ declare
   chosen        rewards%rowtype;
 begin
   -- 재고가 남은 보상만 잠금(FOR UPDATE)으로 가져와 동시성 보장
-  select coalesce(sum(weight), 0) into total_weight
+  -- ★ 가중치 = 현재 재고(stock). 개체 단위 균등 확률 (뽑기통 방식).
+  select coalesce(sum(stock), 0) into total_weight
   from rewards
   where pack_id = p_pack_id and stock > 0;
 
@@ -84,7 +85,7 @@ begin
     order by id
     for update
   loop
-    running := running + chosen.weight;
+    running := running + chosen.stock;  -- stock 을 가중치로 사용
     if pick < running then
       update rewards set stock = stock - 1 where id = chosen.id;
       insert into draws (user_id, pack_id, reward_id)

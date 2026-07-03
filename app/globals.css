@@ -4890,3 +4890,6 @@ button.last-draw-bonus:focus-visible {
   border-color: transparent;
 }
 .result-btn--primary:hover { background: var(--drawzy-glow, #ff8a3d); }
+
+/* 실시간 피드 빈 상태 */
+.live-feed-empty { padding: 32px 12px; text-align: center; font-size: 14px; line-height: 1.7; color: var(--drawzy-mute, #a0a0a0); }
