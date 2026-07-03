@@ -5176,3 +5176,21 @@ button.last-draw-bonus:focus-visible {
 .post-detail-content p { margin: 0 0 4px; }
 .post-detail-actions { margin-top: 20px; display: flex; justify-content: flex-end; }
 .post-detail-actions .result-btn { width: auto; padding: 10px 24px; }
+
+/* ===== 프로필 모달 (주소 검색 버전) ===== */
+.profile-modal--wide { max-width: 440px; max-height: 88vh; overflow-y: auto; }
+.profile-eyebrow {
+  font-size: 12px; font-weight: 800; letter-spacing: 0.14em;
+  color: var(--drawzy-gold, #c8a96b); margin-bottom: 6px;
+}
+.profile-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin: -8px 0 16px; }
+.input-readonly { color: rgba(255,255,255,0.5) !important; cursor: not-allowed; }
+.postcode-row { display: flex; gap: 8px; }
+.postcode-row input { flex: 1; }
+.postcode-btn {
+  padding: 0 18px; border-radius: 12px; border: none;
+  background: var(--drawzy-orange, #F46A1F); color: #fff;
+  font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap;
+  transition: background 0.15s ease;
+}
+.postcode-btn:hover { background: var(--drawzy-glow, #ff8a3d); }
