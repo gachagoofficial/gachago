@@ -3,37 +3,42 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { ProfileModal } from "@/components/account/ProfileModal";
 import { createClient } from "@/lib/supabase/client";
-import { formatWon } from "@/lib/format";
 
 interface DrawHistoryRow {
   id: string;
   created_at: string;
+  ship_status: string | null;
+  tracking_no: string | null;
+  courier: string | null;
   packs: { title: string | null; slug: string | null } | null;
-  rewards: { name: string | null; tier: string | null; value: number | null } | null;
+  rewards: { name: string | null; tier: string | null } | null;
 }
 
 export default function AccountPage() {
   const { user, loading, signOut } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [history, setHistory] = useState<DrawHistoryRow[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [nickname, setNickname] = useState<string>("");
 
   const supabase = useMemo(() => createClient(), []);
 
+  // 뽑기 내역 (배송 정보 포함) + 닉네임 로드
   useEffect(() => {
     if (!user) {
       setHistory([]);
+      setNickname("");
       return;
     }
     let cancelled = false;
     setHistoryLoading(true);
 
-    // draws 는 RLS(own draws read)로 본인 것만 조회됨.
-    // pack/reward 이름은 관계 쿼리로 함께 가져온다.
     supabase
       .from("draws")
-      .select("id, created_at, packs(title, slug), rewards(name, tier, value)")
+      .select("id, created_at, ship_status, tracking_no, courier, packs(title, slug), rewards(name, tier)")
       .order("created_at", { ascending: false })
       .limit(50)
       .then(({ data }) => {
@@ -42,45 +47,64 @@ export default function AccountPage() {
         setHistoryLoading(false);
       });
 
+    supabase
+      .from("profiles")
+      .select("nickname")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled && data?.nickname) setNickname(data.nickname);
+      });
+
     return () => {
       cancelled = true;
     };
-  }, [user, supabase]);
+  }, [user, supabase, showProfile]);
 
-  const totalDraws = history.length;
-  const totalValue = history.reduce((sum, row) => sum + (row.rewards?.value || 0), 0);
+  const shipBadgeClass = (status: string | null) => {
+    if (status === "배송완료") return "ship-badge ship-done";
+    if (status === "배송중") return "ship-badge ship-moving";
+    return "ship-badge ship-ready";
+  };
 
   return (
     <section className="subpage">
       <div className="subpage-inner">
-        <h1>마이페이지</h1>
-
         {loading && <p>불러오는 중...</p>}
 
         {!loading && !user && (
-          <div className="account-guest">
-            <p>로그인하면 뽑기 내역과 계정 정보를 확인할 수 있습니다.</p>
-            <button className="auth-button" onClick={() => setShowAuth(true)}>
-              로그인 / 회원가입
-            </button>
-          </div>
+          <>
+            <h1>마이페이지</h1>
+            <div className="account-guest">
+              <p>로그인하면 뽑기 내역과 계정 정보를 확인할 수 있습니다.</p>
+              <button className="auth-button" onClick={() => setShowAuth(true)}>
+                로그인 / 회원가입
+              </button>
+            </div>
+          </>
         )}
 
         {!loading && user && (
           <div className="account-info">
-            <div className="account-summary">
-              <div className="account-summary-card">
-                <span className="account-summary-label">이메일</span>
-                <strong className="account-summary-value">{user.email}</strong>
+            {/* 상단: 프로필 헤더 + 설정 버튼 */}
+            <div className="account-header">
+              <div className="account-profile">
+                <div className="account-avatar">
+                  {(nickname || user.email || "U")[0].toUpperCase()}
+                </div>
+                <div>
+                  <strong className="account-nickname">{nickname || "닉네임 미설정"}</strong>
+                  <span className="account-email">{user.email}</span>
+                </div>
               </div>
-              <div className="account-summary-card">
-                <span className="account-summary-label">총 뽑기 횟수</span>
-                <strong className="account-summary-value">{totalDraws}회</strong>
-              </div>
-              <div className="account-summary-card">
-                <span className="account-summary-label">획득 상품 가치</span>
-                <strong className="account-summary-value">{formatWon(totalValue)}</strong>
-              </div>
+              <button
+                className="account-gear"
+                onClick={() => setShowProfile(true)}
+                aria-label="프로필 설정"
+                title="프로필 설정"
+              >
+                ⚙
+              </button>
             </div>
 
             <div className="account-actions">
@@ -89,6 +113,7 @@ export default function AccountPage() {
               </button>
             </div>
 
+            {/* 뽑기 내역 (배송/운송장 포함) */}
             <div className="draw-history">
               <h2 className="draw-history-title">뽑기 내역</h2>
               {historyLoading && <p className="draw-history-empty">불러오는 중...</p>}
@@ -109,14 +134,25 @@ export default function AccountPage() {
                       </div>
                       <div className="draw-history-meta">
                         <span>{row.packs?.title || "팩"}</span>
-                        {row.rewards?.value != null && (
-                          <span>{formatWon(row.rewards.value)}</span>
-                        )}
                         <span>
                           {row.created_at
                             ? new Date(row.created_at).toLocaleDateString("ko-KR")
                             : ""}
                         </span>
+                      </div>
+                      {/* 배송 상태 + 운송장 */}
+                      <div className="draw-history-ship">
+                        <span className={shipBadgeClass(row.ship_status)}>
+                          {row.ship_status || "준비중"}
+                        </span>
+                        {row.tracking_no ? (
+                          <span className="tracking-info">
+                            {row.courier ? `${row.courier} ` : ""}
+                            운송장 {row.tracking_no}
+                          </span>
+                        ) : (
+                          <span className="tracking-info tracking-none">운송장 미등록</span>
+                        )}
                       </div>
                     </li>
                   ))}
@@ -127,6 +163,9 @@ export default function AccountPage() {
         )}
 
         {showAuth && <AuthModal initialMode="login" close={() => setShowAuth(false)} />}
+        {showProfile && user && (
+          <ProfileModal userId={user.id} close={() => setShowProfile(false)} />
+        )}
       </div>
     </section>
   );
