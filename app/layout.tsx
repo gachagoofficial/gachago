@@ -28,9 +28,11 @@ export default function RootLayout({
       <body>
         <GlobalParticles />
         <AuthProvider>
-          <Nav />
-          <main>{children}</main>
-          <Footer />
+          <div className="page-shell">
+            <Nav />
+            <main>{children}</main>
+            <Footer />
+          </div>
         </AuthProvider>
       </body>
     </html>
