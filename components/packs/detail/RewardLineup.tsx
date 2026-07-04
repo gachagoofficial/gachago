@@ -53,6 +53,8 @@ export function RewardLineup({ packId }: { packId: string }) {
     };
   }, [packId, supabase]);
 
+  const [selected, setSelected] = useState<RewardRow | null>(null);
+
   const order = tierOrder as string[];
   const config = tierConfig as Record<string, TierMeta>;
 
@@ -101,7 +103,12 @@ export function RewardLineup({ packId }: { packId: string }) {
                 {items.map((r) => {
                   const rInitial = r.initial_stock ?? r.stock;
                   return (
-                    <div className={`reward-card reward-${meta?.tone ?? "standard"}`} key={r.id}>
+                    <button
+                      type="button"
+                      className={`reward-card reward-${meta?.tone ?? "standard"} is-clickable`}
+                      key={r.id}
+                      onClick={() => setSelected(r)}
+                    >
                       <div className="reward-image">
                         {r.image && (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -117,13 +124,50 @@ export function RewardLineup({ packId }: { packId: string }) {
                           </b>
                         </small>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
             </section>
           );
         })}
+
+      {/* 상품 확대 팝업 */}
+      {selected && (
+        <div
+          className="result-overlay"
+          onClick={(e) => e.target === e.currentTarget && setSelected(null)}
+        >
+          <div className="reward-detail-card">
+            <button
+              className="result-close"
+              onClick={() => setSelected(null)}
+              aria-label="닫기"
+            >
+              ×
+            </button>
+            <div className="reward-detail-image">
+              {selected.image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={selected.image} alt={selected.name} />
+              )}
+            </div>
+            {selected.tier && (
+              <span className="result-card__tier">{selected.tier}</span>
+            )}
+            <strong className="reward-detail-name">{selected.name}</strong>
+            {selected.item && <p className="reward-detail-item">{selected.item}</p>}
+            {selected.value != null && (
+              <p className="reward-detail-value">
+                {selected.value.toLocaleString("ko-KR")}원 상당
+              </p>
+            )}
+            <p className="reward-detail-stock">
+              남은 수량 {selected.stock}/{selected.initial_stock ?? selected.stock}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
