@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 import { formatWon } from "@/lib/format";
+import { ShipmentManager } from "@/components/admin/ShipmentManager";
 
 interface RewardRow {
   id: string;
@@ -23,6 +24,7 @@ export default function AdminPage() {
   const supabase = useMemo(() => createClient(), []);
   const [rewards, setRewards] = useState<RewardRow[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
+  const [tab, setTab] = useState<"stock" | "shipment">("stock");
 
   useEffect(() => {
     if (!user) return;
@@ -61,6 +63,26 @@ export default function AdminPage() {
 
         {!loading && user && (
           <>
+            {/* 탭 */}
+            <div className="community-tabs" style={{ marginBottom: 24 }}>
+              <button
+                className={`community-tab${tab === "stock" ? " is-active" : ""}`}
+                onClick={() => setTab("stock")}
+              >
+                재고 관리
+              </button>
+              <button
+                className={`community-tab${tab === "shipment" ? " is-active" : ""}`}
+                onClick={() => setTab("shipment")}
+              >
+                배송 관리
+              </button>
+            </div>
+
+            {tab === "shipment" && <ShipmentManager userId={user.id} />}
+
+            {tab === "stock" && (
+            <>
             <div className="account-summary" style={{ marginBottom: 24 }}>
               <div className="account-summary-card">
                 <span className="account-summary-label">상품 종류</span>
@@ -112,6 +134,8 @@ export default function AdminPage() {
             <p className="draw-history-empty" style={{ marginTop: 16 }}>
               참고: 회원 관리·권한(role) 기능은 profiles 테이블이 필요해 추후 별도 구축 대상입니다.
             </p>
+            </>
+            )}
           </>
         )}
       </div>

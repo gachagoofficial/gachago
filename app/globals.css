@@ -5381,3 +5381,44 @@ select option { background: #1a1a1a; color: #fff; }
   background: var(--drawzy-orange, #F46A1F);
   border-color: transparent; color: #fff;
 }
+
+/* ===== 관리자 배송 관리 ===== */
+.shipment-filters { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.ship-filter {
+  padding: 8px 18px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.6);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.ship-filter.is-active { background: var(--drawzy-orange, #F46A1F); border-color: transparent; color: #fff; }
+.shipment-list { display: flex; flex-direction: column; gap: 12px; }
+.shipment-card {
+  display: grid; grid-template-columns: 1fr auto; gap: 20px;
+  padding: 18px 20px; border-radius: 16px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+}
+.shipment-product { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.shipment-product strong { font-size: 16px; color: #fff; }
+.ship-lastone {
+  padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
+  background: rgba(200,169,107,0.16); color: var(--drawzy-gold, #c8a96b);
+}
+.shipment-pack { font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 10px; }
+.shipment-buyer p { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.6; margin: 0; }
+.shipment-buyer b { color: #fff; }
+.shipment-edit {
+  display: flex; flex-direction: column; gap: 8px;
+  min-width: 220px;
+}
+.shipment-edit input, .shipment-edit .write-select {
+  padding: 10px 12px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: #1a1a1a; color: #fff; font-size: 13px;
+}
+.shipment-edit input:focus { outline: none; border-color: var(--drawzy-orange, #F46A1F); }
+.shipment-edit .result-btn { padding: 10px; }
+
+@media (max-width: 720px) {
+  .shipment-card { grid-template-columns: 1fr; }
+  .shipment-edit { min-width: 0; }
+}
