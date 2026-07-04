@@ -5365,3 +5365,19 @@ select option { background: #1a1a1a; color: #fff; }
 .page-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
 .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .page-info { font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.7); }
+
+/* 페이지 번호 버튼 */
+.history-pagination { flex-wrap: wrap; gap: 6px; }
+.page-num {
+  min-width: 36px; height: 36px; padding: 0 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.7);
+  font-size: 13px; font-weight: 800; cursor: pointer;
+  transition: all 0.15s ease;
+}
+.page-num:hover { background: rgba(255,255,255,0.09); color: #fff; }
+.page-num.is-active {
+  background: var(--drawzy-orange, #F46A1F);
+  border-color: transparent; color: #fff;
+}
