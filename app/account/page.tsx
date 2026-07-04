@@ -25,6 +25,11 @@ export default function AccountPage() {
   const [history, setHistory] = useState<DrawHistoryRow[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [nickname, setNickname] = useState<string>("");
+  const [page, setPage] = useState(1);
+
+  const PER_PAGE = 10;
+  const totalPages = Math.max(1, Math.ceil(history.length / PER_PAGE));
+  const pagedHistory = history.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const supabase = useMemo(() => createClient(), []);
 
@@ -42,7 +47,7 @@ export default function AccountPage() {
       .from("draws")
       .select("id, created_at, ship_status, tracking_no, courier, is_lastone, lastone_name, packs(title, slug), rewards(name, tier)")
       .order("created_at", { ascending: false })
-      .limit(50)
+      .limit(200)
       .then(({ data }) => {
         if (cancelled) return;
         setHistory((data as unknown as DrawHistoryRow[]) || []);
@@ -124,7 +129,7 @@ export default function AccountPage() {
               )}
               {!historyLoading && history.length > 0 && (
                 <ul className="draw-history-list">
-                  {history.map((row) => (
+                  {pagedHistory.map((row) => (
                     <li className="draw-history-row" key={row.id}>
                       <div className="draw-history-main">
                         <span className="draw-history-reward">
@@ -165,6 +170,29 @@ export default function AccountPage() {
                     </li>
                   ))}
                 </ul>
+              )}
+
+              {/* 페이지 넘기기 (10개씩) */}
+              {!historyLoading && totalPages > 1 && (
+                <div className="history-pagination">
+                  <button
+                    className="page-btn"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    이전
+                  </button>
+                  <span className="page-info">
+                    {page} / {totalPages}
+                  </span>
+                  <button
+                    className="page-btn"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                  >
+                    다음
+                  </button>
+                </div>
               )}
             </div>
           </div>

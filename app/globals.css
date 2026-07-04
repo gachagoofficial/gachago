@@ -5349,3 +5349,19 @@ select option { background: #1a1a1a; color: #fff; }
   max-width: none;
   max-height: none;
 }
+
+/* 뽑기 내역 페이지네이션 */
+.history-pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; margin-top: 20px;
+}
+.page-btn {
+  padding: 8px 20px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.04); color: #fff;
+  font-size: 13px; font-weight: 800; cursor: pointer;
+  transition: background 0.15s ease;
+}
+.page-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
+.page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.page-info { font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.7); }
