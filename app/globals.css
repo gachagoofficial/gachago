@@ -4939,17 +4939,17 @@ button.last-draw-bonus:focus-visible {
 
 /* ===== 사이트 푸터 (사이트맵) ===== */
 .site-footer.footer-glow {
-  max-width: 1180px;
-  margin: 60px auto 0;
-  padding: 130px 32px 80px;
+  max-width: 1600px;
+  margin: 100px auto 0;
+  padding: 90px 72px 70px;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 .footer-top {
   display: grid;
   grid-template-columns: 1fr auto auto;
-  gap: 48px;
+  gap: 100px;
   align-items: start;
-  padding-bottom: 32px;
+  padding-bottom: 48px;
 }
 .footer-brand .footer-logo { font-size: 20px; font-weight: 900; color: #fff; }
 .footer-brand p {
@@ -4971,18 +4971,6 @@ button.last-draw-bonus:focus-visible {
 }
 .footer-link-list a:hover { color: #fff; }
 
-.footer-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.38);
-}
 .footer-social { display: flex; gap: 10px; }
 .footer-social a {
   display: grid;
@@ -5168,7 +5156,13 @@ button.last-draw-bonus:focus-visible {
   background: rgba(255,255,255,0.04); color: #fff; font-size: 14px;
   font-family: inherit; resize: vertical;
 }
+/* 드롭다운 펼쳤을 때 옵션도 검은 배경 + 흰 글씨 */
+.write-select { background: #1a1a1a; color: #fff; }
+.write-select option { background: #1a1a1a; color: #fff; }
 .write-select:focus, .write-textarea:focus { outline: none; border-color: var(--drawzy-orange, #F46A1F); }
+/* 드롭다운 옵션 배경/글자 (흰 배경+흰 글자 방지) */
+.write-select { background-color: #1a1a1a; }
+.write-select option { background-color: #1a1a1a; color: #fff; }
 .post-detail-head { border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; margin-bottom: 16px; }
 .post-detail-title { font-size: 20px; font-weight: 900; color: #fff; margin: 10px 0; }
 .post-detail-meta { display: flex; gap: 14px; font-size: 13px; color: rgba(255,255,255,0.45); }
@@ -5194,3 +5188,8 @@ button.last-draw-bonus:focus-visible {
   transition: background 0.15s ease;
 }
 .postcode-btn:hover { background: var(--drawzy-glow, #ff8a3d); }
+
+/* 모든 select 드롭다운 옵션 어둡게 (흰 배경/흰 글씨 방지) */
+select option { background: #1a1a1a; color: #fff; }
+.community-search select,
+.community-search select option { background: #1a1a1a; color: #fff; }
