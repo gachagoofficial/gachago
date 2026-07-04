@@ -12,6 +12,8 @@ interface DrawHistoryRow {
   ship_status: string | null;
   tracking_no: string | null;
   courier: string | null;
+  is_lastone: boolean | null;
+  lastone_name: string | null;
   packs: { title: string | null; slug: string | null } | null;
   rewards: { name: string | null; tier: string | null } | null;
 }
@@ -38,7 +40,7 @@ export default function AccountPage() {
 
     supabase
       .from("draws")
-      .select("id, created_at, ship_status, tracking_no, courier, packs(title, slug), rewards(name, tier)")
+      .select("id, created_at, ship_status, tracking_no, courier, is_lastone, lastone_name, packs(title, slug), rewards(name, tier)")
       .order("created_at", { ascending: false })
       .limit(50)
       .then(({ data }) => {
@@ -132,6 +134,12 @@ export default function AccountPage() {
                           <span className="draw-history-tier">{row.rewards.tier}</span>
                         )}
                       </div>
+                      {/* LAST ONE 보상 획득 표시 */}
+                      {row.is_lastone && row.lastone_name && (
+                        <div className="history-lastone">
+                          🎉 LAST ONE 보상 : {row.lastone_name}
+                        </div>
+                      )}
                       <div className="draw-history-meta">
                         <span>{row.packs?.title || "팩"}</span>
                         <span>

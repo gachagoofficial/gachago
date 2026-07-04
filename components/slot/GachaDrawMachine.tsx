@@ -15,11 +15,15 @@ interface DrawResult {
   value?: number;
   tier?: string;
   remaining_stock?: number;
-  // 슬롯에서 멈출 아이템 식별용(brand/item/rarity). 서버 응답에 맞춰 매핑.
   brand?: string;
   item?: string;
   rarity?: string;
   image?: string;
+  // LAST ONE 보상 (마지막 뽑기일 때만 값이 있음)
+  lastone_name?: string | null;
+  lastone_tier?: string | null;
+  lastone_value?: number | null;
+  lastone_image?: string | null;
 }
 
 interface GachaDrawMachineProps {
@@ -156,6 +160,18 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
             {result.tier && <span className="result-card__tier">{result.tier}</span>}
             {result.value != null && (
               <span className="result-card__value">{formatWon(result.value)} 상당</span>
+            )}
+
+            {/* ★ LAST ONE 보상 (마지막 뽑기) */}
+            {result.lastone_name && (
+              <div className="lastone-banner">
+                <span className="lastone-badge">🎉 LAST ONE 보상 획득!</span>
+                <strong className="lastone-name">{result.lastone_name}</strong>
+                {result.lastone_tier && (
+                  <span className="result-card__tier">{result.lastone_tier}</span>
+                )}
+                <p className="lastone-desc">팩의 마지막을 뽑아 특별 보상이 함께 지급됩니다!</p>
+              </div>
             )}
             <div className="result-card__actions">
               <Link href="/account" className="result-btn result-btn--primary">
