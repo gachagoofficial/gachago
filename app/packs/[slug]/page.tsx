@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { allPacks } from "@/lib/data/catalog";
 import type { Pack } from "@/lib/data/types";
 import { GachaDrawMachine } from "@/components/slot/GachaDrawMachine";
 import { PackShowcaseVisual } from "@/components/packs/detail/PackShowcaseVisual";
 import { RewardLineup } from "@/components/packs/detail/RewardLineup";
 import { LastDrawBonus } from "@/components/packs/detail/LastDrawBonus";
+import { FairnessButton } from "@/components/packs/detail/FairnessButton";
 import { PackStock } from "@/components/packs/detail/PackStock";
 import { formatWon } from "@/lib/format";
 
@@ -53,22 +53,10 @@ export default async function PackDetailPage({
 
           {pack.lastDrawBonus && <LastDrawBonus bonus={pack.lastDrawBonus} />}
 
-          {/* ★ 실제 뽑기 (버튼만 노출, 뽑을 때 슬롯 등장) */}
+          {/* ★ 실제 뽑기 (버튼만 노출, 뽑을 때 슬롯 등장) + 팩 목록으로 */}
           <GachaDrawMachine packId={pack.id} soldOut={soldOut} />
 
-          <div className="detail-action-row">
-            <Link href="/packs" className="detail-secondary-btn">
-              팩 목록으로
-            </Link>
-          </div>
-
-          <div className="fairness-button" aria-hidden="true">
-            <span>
-              <strong>추첨 방식 및 검증 기준</strong>
-              <span>재고 보존 규칙과 서버 처리 절차를 확인하세요</span>
-            </span>
-            <b>+</b>
-          </div>
+          <FairnessButton />
         </div>
       </div>
 

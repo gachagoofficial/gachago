@@ -121,12 +121,15 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
         </div>
       )}
 
-      <div className="detail-action-row">
+      <div className="detail-action-row detail-action-row--inline">
         <PurchaseButton
           onClick={handleDraw}
           state={buttonState}
           disabled={soldOut || authLoading}
         />
+        <Link href="/packs" className="detail-secondary-btn">
+          팩 목록으로
+        </Link>
       </div>
 
       {!user && !authLoading && (

@@ -5245,25 +5245,92 @@ select option { background: #1a1a1a; color: #fff; }
 }
 .reward-detail-card {
   position: relative;
-  width: 100%; max-width: 380px;
-  padding: 40px 28px 28px;
-  border-radius: 24px;
+  width: 100%; max-width: 560px;
+  padding: 44px 40px 36px;
+  border-radius: 28px;
   background: linear-gradient(160deg, #1a1a1a, #0e0e0e);
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(200,169,107,0.35);
   box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
   text-align: center;
   animation: result-pop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .reward-detail-image {
-  width: 200px; height: 200px;
-  border-radius: 20px;
+  width: 100%; max-width: 440px; aspect-ratio: 1 / 1;
+  border-radius: 22px;
   background: rgba(255,255,255,0.03);
   display: grid; place-items: center;
   overflow: hidden; margin-bottom: 8px;
 }
 .reward-detail-image img { width: 100%; height: 100%; object-fit: contain; }
-.reward-detail-name { font-size: 22px; font-weight: 900; color: #fff; line-height: 1.3; }
-.reward-detail-item { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; }
-.reward-detail-value { font-size: 15px; font-weight: 700; color: var(--drawzy-glow, #ff8a3d); }
-.reward-detail-stock { font-size: 13px; color: rgba(255,255,255,0.6); }
+.reward-detail-name { font-size: 26px; font-weight: 900; color: #fff; line-height: 1.3; }
+.reward-detail-item { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+.reward-detail-value { font-size: 16px; font-weight: 700; color: var(--drawzy-glow, #ff8a3d); }
+.reward-detail-stock { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+/* ===== 추첨 방식 검증 팝업 ===== */
+.fairness-button { cursor: pointer; border: none; width: 100%; text-align: left; }
+.fairness-modal {
+  position: relative;
+  width: 100%; max-width: 720px;
+  max-height: 88vh; overflow-y: auto;
+  padding: 32px 30px;
+  border-radius: 24px;
+  background: linear-gradient(160deg, #1c1512, #0e0b0a);
+  border: 1px solid rgba(244,106,31,0.28);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  animation: result-pop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fairness-eyebrow {
+  display: inline-block; padding: 6px 14px; border-radius: 8px;
+  background: rgba(244,106,31,0.16); color: var(--drawzy-glow, #ff8a3d);
+  font-size: 11px; font-weight: 900; letter-spacing: 0.1em;
+}
+.fairness-title { font-size: 28px; font-weight: 900; color: #fff; margin: 16px 0 12px; }
+.fairness-intro { font-size: 14px; line-height: 1.75; color: rgba(255,255,255,0.7); margin-bottom: 24px; }
+.fairness-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;
+}
+.fairness-item {
+  padding: 16px; border-radius: 14px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+}
+.fairness-item-title { font-size: 12px; font-weight: 900; color: var(--drawzy-glow, #ff8a3d); margin-bottom: 8px; }
+.fairness-item-desc { font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.72); }
+.fairness-block {
+  padding: 18px 20px; border-radius: 16px; margin-bottom: 14px;
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(244,106,31,0.18);
+}
+.fairness-block-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.fairness-seq-title { font-size: 13px; font-weight: 900; letter-spacing: 0.08em; color: #fff; }
+.fairness-seq-ver { font-size: 13px; font-weight: 900; color: var(--drawzy-glow, #ff8a3d); }
+.fairness-seq { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.fairness-seq li { font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.72); }
+.fairness-seq li b { color: var(--drawzy-glow, #ff8a3d); font-weight: 900; letter-spacing: 0.04em; }
+.fairness-sub-title { font-size: 15px; font-weight: 900; color: var(--drawzy-gold, #c8a96b); margin-bottom: 10px; }
+.fairness-sub-desc { font-size: 13px; line-height: 1.7; color: rgba(255,255,255,0.72); margin-bottom: 6px; }
+
+@media (max-width: 640px) {
+  .fairness-grid { grid-template-columns: 1fr; }
+  .fairness-title { font-size: 22px; }
+}
+
+/* 뽑기 버튼 + 팩목록으로 가로 배치 */
+.detail-action-row--inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.detail-action-row--inline .detail-secondary-btn {
+  white-space: nowrap;
+}
+
+/* 팩 대표 이미지를 박스에 더 꽉 차게 */
+.detail-image-card {
+  padding: 0.6rem;
+}
+.detail-image-card img {
+  transform: scale(1.02);
+}
