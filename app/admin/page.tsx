@@ -25,9 +25,25 @@ export default function AdminPage() {
   const [rewards, setRewards] = useState<RewardRow[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [tab, setTab] = useState<"stock" | "shipment">("stock");
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  // 관리자 여부 확인
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(null);
+      return;
+    }
+    let cancelled = false;
+    supabase.rpc("is_admin", { p_user_id: user.id }).then(({ data }) => {
+      if (!cancelled) setIsAdmin(data === true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, supabase]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || isAdmin !== true) return;
     let cancelled = false;
     setDataLoading(true);
     supabase
@@ -42,7 +58,7 @@ export default function AdminPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, supabase]);
+  }, [user, isAdmin, supabase]);
 
   const totalStock = rewards.reduce((s, r) => s + (r.stock || 0), 0);
   const lowStock = rewards.filter((r) => r.stock <= 3);
@@ -61,7 +77,17 @@ export default function AdminPage() {
           </div>
         )}
 
-        {!loading && user && (
+        {!loading && user && isAdmin === false && (
+          <div className="account-guest">
+            <p>관리자만 접근할 수 있는 페이지입니다.</p>
+          </div>
+        )}
+
+        {!loading && user && isAdmin === null && (
+          <p className="draw-history-empty">권한 확인 중...</p>
+        )}
+
+        {!loading && user && isAdmin === true && (
           <>
             {/* 탭 */}
             <div className="community-tabs" style={{ marginBottom: 24 }}>
