@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 // "추첨 방식 및 검증 기준" 버튼 + 팝업.
 export function FairnessButton() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,12 +23,13 @@ export function FairnessButton() {
         <b>+</b>
       </button>
 
-      {open && (
-        <div
-          className="result-overlay"
-          onClick={(e) => e.target === e.currentTarget && setOpen(false)}
-        >
-          <div className="fairness-modal">
+      {mounted && open &&
+        createPortal(
+          <div
+            className="result-overlay"
+            onClick={(e) => e.target === e.currentTarget && setOpen(false)}
+          >
+            <div className="fairness-modal">
             <button className="result-close" onClick={() => setOpen(false)} aria-label="닫기">×</button>
 
             <span className="fairness-eyebrow">DRAW CONTROL DOCUMENT · v1.0</span>
@@ -81,8 +85,9 @@ export function FairnessButton() {
               </p>
             </div>
           </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
