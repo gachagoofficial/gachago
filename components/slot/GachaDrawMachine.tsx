@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { SlotReel, type SlotReelHandle } from "./SlotReel";
 import { PurchaseButton } from "./PurchaseButton";
@@ -52,6 +53,8 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
   const [result, setResult] = useState<DrawResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showAuth, setShowAuth] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // 릴에 채울 시퀀스 (단일 통합 릴)
   const setting = slotReelSettings[0];
@@ -143,13 +146,14 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
       )}
 
       {/* 뽑기 결과 모달 (화면 가운데 팝업 + 배경 어둡게) */}
-      {state === "done" && result && (
-        <div
-          className="result-overlay"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setState("idle");
-          }}
-        >
+      {mounted && state === "done" && result &&
+        createPortal(
+          <div
+            className="result-overlay"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setState("idle");
+            }}
+          >
           <div className="result-card" role="status">
             <button
               className="result-close"
@@ -185,8 +189,9 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
               </button>
             </div>
           </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
       {showAuth && <AuthModal initialMode="login" close={() => setShowAuth(false)} />}
     </div>

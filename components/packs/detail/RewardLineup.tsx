@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { createClient } from "@/lib/supabase/client";
 import { tierOrder, tierConfig } from "@/lib/data/catalog";
 
@@ -54,6 +55,8 @@ export function RewardLineup({ packId }: { packId: string }) {
   }, [packId, supabase]);
 
   const [selected, setSelected] = useState<RewardRow | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const order = tierOrder as string[];
   const config = tierConfig as Record<string, TierMeta>;
@@ -132,42 +135,44 @@ export function RewardLineup({ packId }: { packId: string }) {
           );
         })}
 
-      {/* 상품 확대 팝업 */}
-      {selected && (
-        <div
-          className="result-overlay"
-          onClick={(e) => e.target === e.currentTarget && setSelected(null)}
-        >
-          <div className="reward-detail-card">
-            <button
-              className="result-close"
-              onClick={() => setSelected(null)}
-              aria-label="닫기"
-            >
-              ×
-            </button>
-            <div className="reward-detail-image">
-              {selected.image && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={selected.image} alt={selected.name} />
+      {/* 상품 확대 팝업 (Portal로 body에 렌더 → 항상 화면 중앙) */}
+      {mounted && selected &&
+        createPortal(
+          <div
+            className="result-overlay"
+            onClick={(e) => e.target === e.currentTarget && setSelected(null)}
+          >
+            <div className="reward-detail-card">
+              <button
+                className="result-close"
+                onClick={() => setSelected(null)}
+                aria-label="닫기"
+              >
+                ×
+              </button>
+              <div className="reward-detail-image">
+                {selected.image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={selected.image} alt={selected.name} />
+                )}
+              </div>
+              {selected.tier && (
+                <span className="result-card__tier">{selected.tier}</span>
               )}
-            </div>
-            {selected.tier && (
-              <span className="result-card__tier">{selected.tier}</span>
-            )}
-            <strong className="reward-detail-name">{selected.name}</strong>
-            {selected.item && <p className="reward-detail-item">{selected.item}</p>}
-            {selected.value != null && (
-              <p className="reward-detail-value">
-                {selected.value.toLocaleString("ko-KR")}원 상당
+              <strong className="reward-detail-name">{selected.name}</strong>
+              {selected.item && <p className="reward-detail-item">{selected.item}</p>}
+              {selected.value != null && (
+                <p className="reward-detail-value">
+                  {selected.value.toLocaleString("ko-KR")}원 상당
+                </p>
+              )}
+              <p className="reward-detail-stock">
+                남은 수량 {selected.stock}/{selected.initial_stock ?? selected.stock}
               </p>
-            )}
-            <p className="reward-detail-stock">
-              남은 수량 {selected.stock}/{selected.initial_stock ?? selected.stock}
-            </p>
-          </div>
-        </div>
-      )}
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
