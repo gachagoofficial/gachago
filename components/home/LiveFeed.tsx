@@ -30,10 +30,7 @@ function timeAgo(iso: string): string {
 export function LiveFeed() {
   const supabase = useMemo(() => createClient(), []);
   const [feed, setFeed] = useState<FeedRow[] | null>(null);
-  const [expanded, setExpanded] = useState(false);
   const tiers = tierConfig as Record<string, { accent: string; glow: string }>;
-
-  const VISIBLE = 5;
 
   useEffect(() => {
     let cancelled = false;
@@ -74,7 +71,7 @@ export function LiveFeed() {
             <br />첫 번째 럭셔리 당첨의 주인공이 되어보세요!
           </p>
         )}
-        {(expanded ? feed || [] : (feed || []).slice(0, VISIBLE)).map((item) => {
+        {(feed || []).map((item) => {
           const rarityMeta =
             tiers[(item.rarity || item.tier || "").toLowerCase()] || tiers.standard;
           return (
@@ -110,17 +107,6 @@ export function LiveFeed() {
             </article>
           );
         })}
-
-        {/* 5개 초과 시 더보기 / 접기 버튼 */}
-        {feed !== null && feed.length > VISIBLE && (
-          <button
-            type="button"
-            className="live-feed-more"
-            onClick={() => setExpanded((v) => !v)}
-          >
-            {expanded ? "접기" : `더보기 (+${feed.length - VISIBLE})`}
-          </button>
-        )}
       </div>
     </aside>
   );

@@ -1021,7 +1021,18 @@ body ::selection {
 .live-feed-list {
   display: grid;
   gap: 0.62rem;
+  /* 약 5개 높이만 보이고 나머지는 스크롤 */
+  max-height: 27rem;
+  overflow-y: auto;
+  padding-right: 4px;
 }
+/* 스크롤바 스타일 */
+.live-feed-list::-webkit-scrollbar { width: 6px; }
+.live-feed-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.14);
+  border-radius: 999px;
+}
+.live-feed-list::-webkit-scrollbar-track { background: transparent; }
 
 .pulse-dot {
   width: 0.62rem;
