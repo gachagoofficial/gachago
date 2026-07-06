@@ -40,9 +40,14 @@ export function PackCard({
           height={400}
           unoptimized={pack.image.startsWith("http")}
         />
-        {soldOut && (
+        {soldOut && !pack.comingSoon && (
           <div className="soldout-overlay" aria-hidden="true">
             <span>SOLD OUT</span>
+          </div>
+        )}
+        {pack.comingSoon && (
+          <div className="soldout-overlay comingsoon-overlay" aria-hidden="true">
+            <span>COMING SOON</span>
           </div>
         )}
       </div>

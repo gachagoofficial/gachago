@@ -5434,3 +5434,24 @@ select option { background: #1a1a1a; color: #fff; }
   .shipment-card { grid-template-columns: 1fr; }
   .shipment-edit { min-width: 0; }
 }
+
+/* 팩 상세 준비중 */
+.pack-coming-soon {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 32px 24px; border-radius: 18px;
+  background: rgba(244,106,31,0.06);
+  border: 1px solid rgba(244,106,31,0.25);
+  text-align: center;
+}
+.pack-coming-soon strong { font-size: 20px; color: #fff; }
+.pack-coming-soon p { font-size: 14px; color: rgba(255,255,255,0.6); }
+.pack-coming-soon .detail-secondary-btn {
+  margin-top: 8px; display: inline-flex; align-items: center;
+  padding: 0 1.4rem; min-height: 2.55rem;
+}
+/* 카드 준비중 오버레이 (주황 톤) */
+.comingsoon-overlay { background: rgba(20,12,6,0.72) !important; }
+.comingsoon-overlay span {
+  color: var(--drawzy-glow, #ff8a3d) !important;
+  border-color: var(--drawzy-glow, #ff8a3d) !important;
+}

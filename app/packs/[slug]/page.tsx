@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { allPacks } from "@/lib/data/catalog";
 import type { Pack } from "@/lib/data/types";
 import { GachaDrawMachine } from "@/components/slot/GachaDrawMachine";
@@ -53,8 +54,17 @@ export default async function PackDetailPage({
 
           {pack.lastDrawBonus && <LastDrawBonus bonus={pack.lastDrawBonus} />}
 
-          {/* ★ 실제 뽑기 (버튼만 노출, 뽑을 때 슬롯 등장) + 팩 목록으로 */}
-          <GachaDrawMachine packId={pack.id} soldOut={soldOut} />
+          {/* ★ 실제 뽑기 (준비중이면 뽑기 대신 준비중 표시) */}
+          {pack.comingSoon ? (
+            <div className="pack-coming-soon">
+              <span className="coming-soon__badge">COMING SOON</span>
+              <strong>준비중인 팩입니다</strong>
+              <p>곧 오픈 예정이에요. 조금만 기다려주세요!</p>
+              <Link href="/packs" className="detail-secondary-btn">팩 목록으로</Link>
+            </div>
+          ) : (
+            <GachaDrawMachine packId={pack.id} soldOut={soldOut} />
+          )}
 
           <FairnessButton />
         </div>

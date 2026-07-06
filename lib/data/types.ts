@@ -19,6 +19,7 @@ export interface Pack {
   cardHighlight?: string;
   topPrize?: string;
   popularity?: number;
+  comingSoon?: boolean;
   createdAt?: number;
   image: string;
   heroImage?: string;
