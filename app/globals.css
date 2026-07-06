@@ -4945,9 +4945,10 @@ button.last-draw-bonus:focus-visible {
 
 /* ===== 사이트 푸터 (사이트맵) ===== */
 .site-footer.footer-glow {
-  max-width: 1720px;
-  margin: 100px auto 0;
-  padding: 80px 80px 64px;
+  max-width: none;
+  width: 100%;
+  margin: 100px 0 0;
+  padding: 80px clamp(40px, 7vw, 160px) 64px;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 .footer-top {
