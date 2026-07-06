@@ -4945,9 +4945,9 @@ button.last-draw-bonus:focus-visible {
 
 /* ===== 사이트 푸터 (사이트맵) ===== */
 .site-footer.footer-glow {
-  max-width: 1600px;
+  max-width: 1720px;
   margin: 100px auto 0;
-  padding: 90px 72px 70px;
+  padding: 80px 80px 64px;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 .footer-top {
@@ -4977,6 +4977,18 @@ button.last-draw-bonus:focus-visible {
 }
 .footer-link-list a:hover { color: #fff; }
 
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+}
 .footer-social { display: flex; gap: 10px; }
 .footer-social a {
   display: grid;
