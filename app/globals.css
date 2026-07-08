@@ -5467,3 +5467,36 @@ select option { background: #1a1a1a; color: #fff; }
 .auth-button--primary:hover {
   background: rgba(255,255,255,0.88) !important;
 }
+
+/* ===== 회원 등급 카드 ===== */
+.tier-card {
+  margin: 18px 0;
+  padding: 22px 24px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.tier-card-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 18px;
+}
+.tier-eyebrow {
+  display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.4); margin-bottom: 8px;
+}
+.tier-name {
+  font-size: 30px; font-weight: 900;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.tier-spent { text-align: right; }
+.tier-spent span { display: block; font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 4px; }
+.tier-spent b { font-size: 18px; font-weight: 900; color: #fff; }
+.tier-progress-wrap { display: flex; flex-direction: column; gap: 8px; }
+.tier-progress-bar {
+  width: 100%; height: 8px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); overflow: hidden;
+}
+.tier-progress-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+.tier-progress-text { font-size: 13px; color: rgba(255,255,255,0.6); }
+.tier-progress-text b { color: #fff; font-weight: 800; }

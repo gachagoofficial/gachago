@@ -5,6 +5,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { ProfileModal } from "@/components/account/ProfileModal";
 import { createClient } from "@/lib/supabase/client";
+import { getTier, getNextTier } from "@/lib/membership";
 
 interface DrawHistoryRow {
   id: string;
@@ -14,7 +15,7 @@ interface DrawHistoryRow {
   courier: string | null;
   is_lastone: boolean | null;
   lastone_name: string | null;
-  packs: { title: string | null; slug: string | null } | null;
+  packs: { title: string | null; slug: string | null; price: number | null } | null;
   rewards: { name: string | null; tier: string | null } | null;
 }
 
@@ -31,6 +32,14 @@ export default function AccountPage() {
   const totalPages = Math.max(1, Math.ceil(history.length / PER_PAGE));
   const pagedHistory = history.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
+  // 누적 사용액 = 뽑은 팩들의 가격 합계 (나중에 결제 금액으로 교체 가능)
+  const totalSpent = history.reduce((sum, r) => sum + (r.packs?.price || 0), 0);
+  const tier = getTier(totalSpent);
+  const nextTier = getNextTier(totalSpent);
+  const progress = nextTier
+    ? Math.min(100, ((totalSpent - tier.min) / (nextTier.min - tier.min)) * 100)
+    : 100;
+
   const supabase = useMemo(() => createClient(), []);
 
   // 뽑기 내역 (배송 정보 포함) + 닉네임 로드
@@ -45,7 +54,7 @@ export default function AccountPage() {
 
     supabase
       .from("draws")
-      .select("id, created_at, ship_status, tracking_no, courier, is_lastone, lastone_name, packs(title, slug), rewards(name, tier)")
+      .select("id, created_at, ship_status, tracking_no, courier, is_lastone, lastone_name, packs(title, slug, price), rewards(name, tier)")
       .order("created_at", { ascending: false })
       .limit(1000)
       .then(({ data }) => {
@@ -118,6 +127,39 @@ export default function AccountPage() {
               <button className="auth-button" onClick={() => signOut()}>
                 로그아웃
               </button>
+            </div>
+
+            {/* 회원 등급 카드 */}
+            <div className="tier-card">
+              <div className="tier-card-top">
+                <div>
+                  <span className="tier-eyebrow">MEMBERSHIP</span>
+                  <strong className="tier-name" style={{ background: tier.gradient }}>
+                    {tier.name}
+                  </strong>
+                </div>
+                <div className="tier-spent">
+                  <span>누적 사용액</span>
+                  <b>{totalSpent.toLocaleString("ko-KR")}원</b>
+                </div>
+              </div>
+
+              {nextTier ? (
+                <div className="tier-progress-wrap">
+                  <div className="tier-progress-bar">
+                    <div
+                      className="tier-progress-fill"
+                      style={{ width: `${progress}%`, background: tier.gradient }}
+                    />
+                  </div>
+                  <p className="tier-progress-text">
+                    다음 등급 <b>{nextTier.name}</b>까지{" "}
+                    {(nextTier.min - totalSpent).toLocaleString("ko-KR")}원
+                  </p>
+                </div>
+              ) : (
+                <p className="tier-progress-text">최고 등급에 도달했습니다! 🎉</p>
+              )}
             </div>
 
             {/* 뽑기 내역 (배송/운송장 포함) */}
