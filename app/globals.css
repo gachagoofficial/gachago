@@ -5506,3 +5506,25 @@ select option { background: #1a1a1a; color: #fff; }
   font-size: 12px; color: rgba(255,255,255,0.4);
   margin: -6px 0 14px;
 }
+
+/* 뽑기 내역 티어 필터 */
+.history-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.history-filter {
+  padding: 6px 14px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.6);
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: all 0.15s ease;
+}
+.history-filter:hover { color: #fff; }
+.history-filter.is-active {
+  background: var(--drawzy-orange, #F46A1F); border-color: transparent; color: #fff;
+}
+
+/* 비밀글 체크박스 */
+.secret-check {
+  display: flex; flex-direction: row !important; align-items: center; gap: 8px;
+  cursor: pointer; padding: 4px 0;
+}
+.secret-check input { width: 16px; height: 16px; accent-color: var(--drawzy-orange, #F46A1F); cursor: pointer; }
+.secret-check span { font-size: 13px; color: rgba(255,255,255,0.7); }

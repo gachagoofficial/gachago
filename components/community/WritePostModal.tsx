@@ -19,6 +19,7 @@ export function WritePostModal({
   const [category, setCategory] = useState("자유");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [isSecret, setIsSecret] = useState(false);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -52,6 +53,7 @@ export function WritePostModal({
       title: title.trim(),
       content: content.trim() || null,
       is_notice: false,
+      is_secret: isSecret,
     });
 
     setSaving(false);
@@ -94,6 +96,16 @@ export function WritePostModal({
               placeholder="내용을 입력하세요"
               rows={6}
             />
+          </label>
+
+          {/* 비밀글 체크 */}
+          <label className="secret-check">
+            <input
+              type="checkbox"
+              checked={isSecret}
+              onChange={(e) => setIsSecret(e.target.checked)}
+            />
+            <span>🔒 비밀글로 작성 (나와 운영자만 볼 수 있어요)</span>
           </label>
 
           {msg && <p className="profile-msg">{msg}</p>}

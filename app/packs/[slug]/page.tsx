@@ -52,7 +52,7 @@ export default async function PackDetailPage({
             <strong>{formatWon(pack.priceValue)}</strong>
           </div>
 
-          {pack.lastDrawBonus && <LastDrawBonus bonus={pack.lastDrawBonus} />}
+          {pack.lastDrawBonus && !pack.comingSoon && <LastDrawBonus bonus={pack.lastDrawBonus} />}
 
           {/* ★ 실제 뽑기 (준비중이면 뽑기 대신 준비중 표시) */}
           {pack.comingSoon ? (
@@ -70,15 +70,17 @@ export default async function PackDetailPage({
         </div>
       </div>
 
-      {/* 하단: 당첨 가능 상품 (DB 실시간 재고) */}
-      <section className="reward-section reveal delay-1">
-        <div className="reward-heading">
-          <p className="section-label">Reward Lineup</p>
-          <h2>당첨 가능 상품</h2>
-          <p>이 팩에서 등장할 수 있는 리워드를 티어별로 확인하세요.</p>
-        </div>
-        <RewardLineup packId={pack.id} />
-      </section>
+      {/* 하단: 당첨 가능 상품 (준비중 팩은 숨김) */}
+      {!pack.comingSoon && (
+        <section className="reward-section reveal delay-1">
+          <div className="reward-heading">
+            <p className="section-label">Reward Lineup</p>
+            <h2>당첨 가능 상품</h2>
+            <p>이 팩에서 등장할 수 있는 리워드를 티어별로 확인하세요.</p>
+          </div>
+          <RewardLineup packId={pack.id} />
+        </section>
+      )}
     </section>
   );
 }

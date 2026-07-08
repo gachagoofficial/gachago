@@ -27,10 +27,21 @@ export default function AccountPage() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [nickname, setNickname] = useState<string>("");
   const [page, setPage] = useState(1);
+  const [tierFilter, setTierFilter] = useState<string>("전체");
+
+  // 티어 필터 적용
+  const TIER_OPTIONS = ["전체", "LEGEND", "MYTHIC", "EPIC", "RARE", "랜덤 제외"];
+  const filteredHistory = history.filter((r) => {
+    const t = (r.rewards?.tier || "").toUpperCase();
+    const name = r.rewards?.name || "";
+    if (tierFilter === "전체") return true;
+    if (tierFilter === "랜덤 제외") return name !== "랜덤 상품";
+    return t === tierFilter;
+  });
 
   const PER_PAGE = 10;
-  const totalPages = Math.max(1, Math.ceil(history.length / PER_PAGE));
-  const pagedHistory = history.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / PER_PAGE));
+  const pagedHistory = filteredHistory.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   // 누적 사용액 = 이번 달에 뽑은 팩 가격 합계 (매달 1일 자동 초기화)
   // 나중에 결제가 생기면 결제 금액으로 교체 가능.
@@ -176,6 +187,22 @@ export default function AccountPage() {
             {/* 뽑기 내역 (배송/운송장 포함) */}
             <div className="draw-history">
               <h2 className="draw-history-title">뽑기 내역</h2>
+
+              {/* 티어 필터 */}
+              <div className="history-filters">
+                {TIER_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    className={`history-filter${tierFilter === opt ? " is-active" : ""}`}
+                    onClick={() => {
+                      setTierFilter(opt);
+                      setPage(1);
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
               {historyLoading && <p className="draw-history-empty">불러오는 중...</p>}
               {!historyLoading && history.length === 0 && (
                 <p className="draw-history-empty">아직 뽑기 내역이 없습니다. 팩을 열어보세요!</p>

@@ -15,6 +15,7 @@ export interface Post {
   title: string;
   content: string | null;
   is_notice: boolean;
+  is_secret?: boolean;
   created_at: string;
 }
 
@@ -107,7 +108,10 @@ export function CommunityBoard() {
               {!p.is_notice && p.category && (
                 <span className="community-cat">{p.category}</span>
               )}
-              <span className="community-post-title">{p.title}</span>
+              <span className="community-post-title">
+                {p.is_secret && "🔒 "}
+                {p.title}
+              </span>
             </div>
             <div className="community-post-meta">
               <span>{p.author_name || "익명"}</span>
