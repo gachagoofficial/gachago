@@ -25,12 +25,8 @@ export function PackCard({
   const total = stockInfo ? stockInfo.total : fallbackTotal;
   const soldOut = stockInfo ? stockInfo.remaining <= 0 : false;
 
-  return (
-    <Link
-      href={`/packs/${pack.slug}`}
-      className={`pack-card is-clickable${soldOut ? " is-soldout" : ""}`}
-      aria-label={`${pack.title} 상세 보기`}
-    >
+  const inner = (
+    <>
       <div className="pack-image-shell">
         <Image
           className="pack-image"
@@ -63,6 +59,28 @@ export function PackCard({
           </div>
         )}
       </div>
+    </>
+  );
+
+  // 준비중이면 클릭해도 상세로 못 들어감
+  if (pack.comingSoon) {
+    return (
+      <div
+        className="pack-card is-comingsoon"
+        aria-label={`${pack.title} (준비중)`}
+      >
+        {inner}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={`/packs/${pack.slug}`}
+      className={`pack-card is-clickable${soldOut ? " is-soldout" : ""}`}
+      aria-label={`${pack.title} 상세 보기`}
+    >
+      {inner}
     </Link>
   );
 }
