@@ -5457,3 +5457,13 @@ select option { background: #1a1a1a; color: #fff; }
   color: var(--drawzy-glow, #ff8a3d) !important;
   border-color: var(--drawzy-glow, #ff8a3d) !important;
 }
+
+/* 회원가입 버튼 (흰색 강조) */
+.auth-button--primary {
+  background: #fff !important;
+  color: #111 !important;
+  border-color: #fff !important;
+}
+.auth-button--primary:hover {
+  background: rgba(255,255,255,0.88) !important;
+}
