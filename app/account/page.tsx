@@ -32,8 +32,15 @@ export default function AccountPage() {
   const totalPages = Math.max(1, Math.ceil(history.length / PER_PAGE));
   const pagedHistory = history.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  // 누적 사용액 = 뽑은 팩들의 가격 합계 (나중에 결제 금액으로 교체 가능)
-  const totalSpent = history.reduce((sum, r) => sum + (r.packs?.price || 0), 0);
+  // 누적 사용액 = 이번 달에 뽑은 팩 가격 합계 (매달 1일 자동 초기화)
+  // 나중에 결제가 생기면 결제 금액으로 교체 가능.
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const totalSpent = history.reduce((sum, r) => {
+    if (!r.created_at) return sum;
+    if (new Date(r.created_at) < monthStart) return sum; // 이번 달 것만
+    return sum + (r.packs?.price || 0);
+  }, 0);
   const tier = getTier(totalSpent);
   const nextTier = getNextTier(totalSpent);
   const progress = nextTier
@@ -139,9 +146,13 @@ export default function AccountPage() {
                   </strong>
                 </div>
                 <div className="tier-spent">
-                  <span>누적 사용액</span>
+                  <span>이번 달 사용액</span>
                   <b>{totalSpent.toLocaleString("ko-KR")}원</b>
                 </div>
+              </div>
+
+              <div className="tier-monthly-note">
+                {now.getMonth() + 1}월 기준 · 매달 1일 초기화
               </div>
 
               {nextTier ? (

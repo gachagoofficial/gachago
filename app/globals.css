@@ -5500,3 +5500,9 @@ select option { background: #1a1a1a; color: #fff; }
 .tier-progress-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
 .tier-progress-text { font-size: 13px; color: rgba(255,255,255,0.6); }
 .tier-progress-text b { color: #fff; font-weight: 800; }
+
+/* 월간 등급 안내 */
+.tier-monthly-note {
+  font-size: 12px; color: rgba(255,255,255,0.4);
+  margin: -6px 0 14px;
+}
