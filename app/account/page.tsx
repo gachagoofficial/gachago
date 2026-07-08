@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { ProfileModal } from "@/components/account/ProfileModal";
 import { createClient } from "@/lib/supabase/client";
 import { getTier, getNextTier } from "@/lib/membership";
+import { tierConfig } from "@/lib/data/catalog";
 
 interface DrawHistoryRow {
   id: string;
@@ -28,6 +30,19 @@ export default function AccountPage() {
   const [nickname, setNickname] = useState<string>("");
   const [page, setPage] = useState(1);
   const [tierFilter, setTierFilter] = useState<string>("전체");
+  const [selectedReward, setSelectedReward] = useState<DrawHistoryRow | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const tierMeta = tierConfig as Record<string, { accent: string; glow: string }>;
+  const glowFor = (t: string | null | undefined) => {
+    const key = (t || "").toLowerCase();
+    // EPIC 이상만 glow (epic/mythic/legend)
+    if (["epic", "mythic", "legend"].includes(key)) {
+      return tierMeta[key] || null;
+    }
+    return null;
+  };
 
   // 티어 필터 적용
   const TIER_OPTIONS = ["전체", "LEGEND", "MYTHIC", "EPIC", "RARE", "랜덤 제외"];
@@ -209,8 +224,15 @@ export default function AccountPage() {
               )}
               {!historyLoading && history.length > 0 && (
                 <ul className="draw-history-list">
-                  {pagedHistory.map((row) => (
-                    <li className="draw-history-row" key={row.id}>
+                  {pagedHistory.map((row) => {
+                    const glow = glowFor(row.rewards?.tier);
+                    return (
+                    <li
+                      className={`draw-history-row${glow ? " has-glow" : ""}`}
+                      key={row.id}
+                      style={glow ? ({ "--row-accent": glow.accent, "--row-glow": glow.glow } as React.CSSProperties) : undefined}
+                      onClick={() => setSelectedReward(row)}
+                    >
                       <div className="draw-history-main">
                         <span className="draw-history-reward">
                           {row.rewards?.name || "상품"}
@@ -248,7 +270,8 @@ export default function AccountPage() {
                         )}
                       </div>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               )}
 
@@ -313,6 +336,46 @@ export default function AccountPage() {
         {showProfile && user && (
           <ProfileModal userId={user.id} close={() => setShowProfile(false)} />
         )}
+
+        {/* 뽑기 내역 상품 상세 팝업 */}
+        {mounted && selectedReward &&
+          createPortal(
+            <div
+              className="result-overlay"
+              onClick={(e) => e.target === e.currentTarget && setSelectedReward(null)}
+            >
+              <div className="reward-detail-card">
+                <button className="result-close" onClick={() => setSelectedReward(null)} aria-label="닫기">×</button>
+                {selectedReward.rewards?.tier && (
+                  <span className="result-card__tier">{selectedReward.rewards.tier}</span>
+                )}
+                <strong className="reward-detail-name">{selectedReward.rewards?.name || "상품"}</strong>
+                <p className="reward-detail-item">{selectedReward.packs?.title || "팩"}</p>
+                {selectedReward.is_lastone && selectedReward.lastone_name && (
+                  <div className="history-lastone" style={{ marginTop: 8 }}>
+                    🎉 LAST ONE 보상 : {selectedReward.lastone_name}
+                  </div>
+                )}
+                <p className="reward-detail-stock">
+                  {selectedReward.created_at
+                    ? new Date(selectedReward.created_at).toLocaleString("ko-KR")
+                    : ""}
+                </p>
+                <div className="draw-history-ship" style={{ justifyContent: "center", marginTop: 8 }}>
+                  <span className={shipBadgeClass(selectedReward.ship_status)}>
+                    {selectedReward.ship_status || "준비중"}
+                  </span>
+                  {selectedReward.tracking_no && (
+                    <span className="tracking-info">
+                      {selectedReward.courier ? `${selectedReward.courier} ` : ""}
+                      운송장 {selectedReward.tracking_no}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )}
       </div>
     </section>
   );

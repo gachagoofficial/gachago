@@ -5528,3 +5528,19 @@ select option { background: #1a1a1a; color: #fff; }
 }
 .secret-check input { width: 16px; height: 16px; accent-color: var(--drawzy-orange, #F46A1F); cursor: pointer; }
 .secret-check span { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+/* 뽑기 내역 티어 glow (EPIC 이상) + 클릭 가능 */
+.draw-history-row { cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease; }
+.draw-history-row:hover { transform: translateY(-2px); }
+.draw-history-row.has-glow {
+  border-color: var(--row-accent, rgba(255,255,255,0.12)) !important;
+  box-shadow: 0 0 18px var(--row-glow, transparent), inset 0 0 0 1px var(--row-accent, transparent);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--row-glow) 40%, transparent), transparent 60%);
+}
+.draw-history-row.has-glow:hover {
+  box-shadow: 0 0 28px var(--row-glow, transparent), inset 0 0 0 1px var(--row-accent, transparent);
+}
+.draw-history-row.has-glow .draw-history-tier {
+  background: var(--row-accent);
+  color: #111;
+}
