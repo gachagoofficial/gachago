@@ -9,12 +9,22 @@ import { usePackStocks } from "@/lib/hooks/usePackStocks";
 const CATEGORY_OPTIONS = ["전체", "지갑", "가방", "시계", "전자제품", "의류"];
 const SORT_OPTIONS = ["인기순", "최신순", "가격 낮은순", "가격 높은순"];
 
-function sortItems(items: Pack[], sortBy: string): Pack[] {
+function sortItems(
+  items: Pack[],
+  sortBy: string,
+  stocks: Record<string, { remaining: number; total: number }> | null,
+): Pack[] {
   const list = [...items];
   if (sortBy === "최신순") return list.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
   if (sortBy === "가격 낮은순") return list.sort((a, b) => a.priceValue - b.priceValue);
   if (sortBy === "가격 높은순") return list.sort((a, b) => b.priceValue - a.priceValue);
-  return list.sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0));
+  // 인기순 = 실제 판매량(초기재고 - 현재재고) 많은 순
+  const soldOf = (p: Pack) => {
+    const s = stocks?.[p.id];
+    if (!s) return -1; // 재고 정보 없으면 뒤로
+    return s.total - s.remaining;
+  };
+  return list.sort((a, b) => soldOf(b) - soldOf(a));
 }
 
 // 팩 목록 + 검색/카테고리/정렬 필터.
@@ -32,8 +42,8 @@ export function PacksBrowser() {
       const matchesCategory = category === "전체" || pack.category === category;
       return matchesKeyword && matchesCategory;
     });
-    return sortItems(filtered, sortBy);
-  }, [search, category, sortBy]);
+    return sortItems(filtered, sortBy, stocks);
+  }, [search, category, sortBy, stocks]);
 
   return (
     <div className="subpage-inner">
