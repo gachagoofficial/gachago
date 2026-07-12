@@ -35,6 +35,16 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
+      // 5분 잠금 에러 처리 (LOCKED:남은초)
+      const msg = error.message || "";
+      const lockMatch = msg.match(/LOCKED:(\d+)/);
+      if (lockMatch) {
+        const seconds = parseInt(lockMatch[1], 10);
+        return NextResponse.json(
+          { error: "locked", lockedSeconds: seconds },
+          { status: 429 },
+        );
+      }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 

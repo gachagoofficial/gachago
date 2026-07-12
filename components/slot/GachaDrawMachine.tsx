@@ -7,6 +7,7 @@ import { SlotReel, type SlotReelHandle } from "./SlotReel";
 import { PurchaseButton } from "./PurchaseButton";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { createClient } from "@/lib/supabase/client";
 import { buildReelSequence, slotReelSettings, type SlotItemData } from "@/lib/slot/helpers";
 import { formatWon } from "@/lib/format";
 
@@ -32,7 +33,7 @@ interface GachaDrawMachineProps {
   soldOut?: boolean;
 }
 
-type DrawState = "idle" | "loading" | "spinning" | "done" | "error";
+type DrawState = "idle" | "loading" | "spinning" | "done" | "error" | "ticket";
 
 /**
  * ★ 실제 가챠 뽑기 컴포넌트.
@@ -55,6 +56,45 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
   const [showAuth, setShowAuth] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // ★ 팩 잠금 상태 (다른 사람이 뽑는 중이면 카운트다운)
+  const supabase = useMemo(() => createClient(), []);
+  const [lockSeconds, setLockSeconds] = useState<number>(0); // 남은 잠금 초 (0이면 안 잠김/본인)
+
+  useEffect(() => {
+    let active = true;
+    const checkLock = async () => {
+      const { data } = await supabase.rpc("get_pack_lock", { p_pack_id: packId });
+      if (!active) return;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row?.locked_until) {
+        setLockSeconds(0);
+        return;
+      }
+      const until = new Date(row.locked_until).getTime();
+      const remain = Math.ceil((until - Date.now()) / 1000);
+      // 본인이 잠근 거면 카운트다운 안 보임 (계속 뽑기 가능)
+      if (remain > 0 && row.locked_by !== user?.id) {
+        setLockSeconds(remain);
+      } else {
+        setLockSeconds(0);
+      }
+    };
+    checkLock();
+    const timer = setInterval(() => {
+      setLockSeconds((s) => {
+        if (s <= 1) {
+          checkLock(); // 잠금 풀렸는지 재확인
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [packId, user?.id, supabase]);
 
   // 릴에 채울 시퀀스 (단일 통합 릴)
   const setting = slotReelSettings[0];
@@ -80,28 +120,25 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
         body: JSON.stringify({ packId }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        // 5분 잠금
+        if (data.error === "locked") {
+          const sec = data.lockedSeconds || 300;
+          const min = Math.floor(sec / 60);
+          const s = sec % 60;
+          throw new Error(
+            `방금 다른 분이 이 팩을 뽑았어요. ${min}분 ${s}초 후에 다시 시도해주세요.`,
+          );
+        }
         throw new Error(data.error || "뽑기 요청이 실패했습니다.");
       }
 
-      const data = await res.json();
-      const reward: DrawResult = data.result;
+      // ★ 티켓 발급 완료 (결과는 숨김, 마이페이지에서 확인)
+      setState("ticket");
 
-      // 서버가 정한 결과로 슬롯을 멈춘다.
-      setState("spinning");
-      const targetItem: SlotItemData = {
-        brand: reward.brand ?? reward.name,
-        item: reward.item ?? "",
-        rarity: reward.rarity ?? reward.tier,
-        image: reward.image,
-      };
-      await reelRef.current?.spinToItem(targetItem);
-
-      setResult(reward);
-      setState("done");
-
-      // ★ 재고 표시 컴포넌트들에게 "재고 바뀜" 신호 → 새로고침 없이 즉시 갱신
+      // 재고 갱신 신호
       window.dispatchEvent(new CustomEvent("gacha:stock-changed"));
     } catch (e) {
       setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.");
@@ -125,11 +162,24 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
       )}
 
       <div className="detail-action-row detail-action-row--inline">
-        <PurchaseButton
-          onClick={handleDraw}
-          state={buttonState}
-          disabled={soldOut || authLoading}
-        />
+        {lockSeconds > 0 ? (
+          <div className="pack-locked-box">
+            <span className="pack-locked-icon">⏳</span>
+            <div>
+              <strong>다른 분이 뽑는 중이에요</strong>
+              <p>
+                {Math.floor(lockSeconds / 60)}:
+                {String(lockSeconds % 60).padStart(2, "0")} 후에 뽑을 수 있어요
+              </p>
+            </div>
+          </div>
+        ) : (
+          <PurchaseButton
+            onClick={handleDraw}
+            state={buttonState}
+            disabled={soldOut || authLoading}
+          />
+        )}
         <Link href="/packs" className="detail-secondary-btn">
           팩 목록으로
         </Link>
@@ -146,6 +196,33 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
       )}
 
       {/* 뽑기 결과 모달 (화면 가운데 팝업 + 배경 어둡게) */}
+      {mounted && state === "ticket" &&
+        createPortal(
+          <div
+            className="result-overlay"
+            onClick={(e) => e.target === e.currentTarget && setState("idle")}
+          >
+            <div className="ticket-issued-card">
+              <button className="result-close" onClick={() => setState("idle")} aria-label="닫기">×</button>
+              <div className="ticket-icon">🎟️</div>
+              <strong className="ticket-title">티켓이 발급되었어요!</strong>
+              <p className="ticket-desc">
+                마이페이지에서 티켓을 열어 결과를 확인하세요.
+                <br />어떤 상품이 나왔을까요?
+              </p>
+              <div className="result-card__actions">
+                <Link href="/account" className="result-btn result-btn--primary">
+                  마이페이지에서 열기
+                </Link>
+                <button className="result-btn" onClick={() => setState("idle")}>
+                  계속 뽑기
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
       {mounted && state === "done" && result &&
         createPortal(
           <div

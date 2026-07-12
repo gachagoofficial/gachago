@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { ProfileModal } from "@/components/account/ProfileModal";
+import { TicketBox } from "@/components/account/TicketBox";
 import { createClient } from "@/lib/supabase/client";
 import { getTier, getNextTier } from "@/lib/membership";
 import { tierConfig } from "@/lib/data/catalog";
@@ -27,6 +28,7 @@ export default function AccountPage() {
   const [showProfile, setShowProfile] = useState(false);
   const [history, setHistory] = useState<DrawHistoryRow[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [nickname, setNickname] = useState<string>("");
   const [page, setPage] = useState(1);
   const [tierFilter, setTierFilter] = useState<string>("전체");
@@ -88,6 +90,7 @@ export default function AccountPage() {
     supabase
       .from("draws")
       .select("id, created_at, ship_status, tracking_no, courier, is_lastone, lastone_name, packs(title, slug, price), rewards(name, tier)")
+      .eq("is_opened", true)
       .order("created_at", { ascending: false })
       .limit(1000)
       .then(({ data }) => {
@@ -108,7 +111,7 @@ export default function AccountPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, supabase, showProfile]);
+  }, [user, supabase, showProfile, reloadKey]);
 
   const shipBadgeClass = (status: string | null) => {
     if (status === "배송완료") return "ship-badge ship-done";
@@ -200,6 +203,9 @@ export default function AccountPage() {
             </div>
 
             {/* 뽑기 내역 (배송/운송장 포함) */}
+            {/* 확인 안 한 티켓 */}
+            <TicketBox userId={user.id} onOpened={() => setReloadKey((k) => k + 1)} />
+
             <div className="draw-history">
               <h2 className="draw-history-title">뽑기 내역</h2>
 

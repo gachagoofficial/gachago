@@ -5553,3 +5553,71 @@ select option { background: #1a1a1a; color: #fff; }
   opacity: 0.85;
 }
 .pack-card.is-comingsoon:hover { transform: none; }
+
+/* ===== 티켓 발급 팝업 ===== */
+.ticket-issued-card {
+  position: relative; width: 100%; max-width: 420px;
+  padding: 40px 30px 30px; border-radius: 24px;
+  background: linear-gradient(160deg, #1a1a1a, #0e0e0e);
+  border: 1px solid rgba(244,106,31,0.3);
+  display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;
+  animation: result-pop 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.ticket-icon { font-size: 64px; }
+.ticket-title { font-size: 22px; font-weight: 900; color: #fff; }
+.ticket-desc { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.7; }
+
+/* ===== 마이페이지 티켓 박스 ===== */
+.ticket-box {
+  margin-bottom: 22px; padding: 22px 24px; border-radius: 18px;
+  background: rgba(244,106,31,0.06); border: 1px solid rgba(244,106,31,0.25);
+}
+.ticket-box-head { display: flex; align-items: center; gap: 10px; }
+.ticket-box-head .draw-history-title { margin: 0; }
+.ticket-count {
+  padding: 3px 12px; border-radius: 999px;
+  background: var(--drawzy-orange,#F46A1F); color: #fff; font-size: 13px; font-weight: 800;
+}
+.ticket-box-sub { font-size: 13px; color: rgba(255,255,255,0.6); margin: 6px 0 16px; }
+.ticket-grid { display: flex; flex-direction: column; gap: 10px; }
+.ticket-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-radius: 14px; cursor: pointer; text-align: left;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.ticket-item:hover { transform: translateY(-2px); background: rgba(255,255,255,0.08); }
+.ticket-item-icon { font-size: 30px; }
+.ticket-item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.ticket-item-info strong { font-size: 15px; color: #fff; }
+.ticket-item-info span { font-size: 12px; color: rgba(255,255,255,0.45); }
+.ticket-open-label {
+  padding: 6px 16px; border-radius: 999px;
+  background: var(--drawzy-orange,#F46A1F); color: #fff; font-size: 13px; font-weight: 800;
+}
+
+/* 티켓 까기 연출 */
+.ticket-reveal-card {
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.ticket-reveal-icon { font-size: 90px; }
+.ticket-reveal-text { font-size: 22px; font-weight: 900; color: #fff; }
+.is-shaking { animation: ticketShake 0.5s ease-in-out infinite; }
+@keyframes ticketShake {
+  0%,100% { transform: rotate(-6deg) scale(1); }
+  50% { transform: rotate(6deg) scale(1.08); }
+}
+.ticket-congrats { font-size: 15px; font-weight: 900; color: var(--drawzy-glow,#ff8a3d); }
+.ticket-result { animation: result-pop 0.4s cubic-bezier(0.16,1,0.3,1); }
+
+/* 팩 잠금 카운트다운 */
+.pack-locked-box {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 22px; border-radius: 14px;
+  background: rgba(244,106,31,0.08);
+  border: 1px solid rgba(244,106,31,0.25);
+  flex: 1;
+}
+.pack-locked-icon { font-size: 28px; }
+.pack-locked-box strong { display: block; font-size: 15px; color: #fff; }
+.pack-locked-box p { font-size: 14px; color: var(--drawzy-glow, #ff8a3d); font-weight: 800; margin-top: 2px; }
