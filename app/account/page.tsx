@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { AuthModal } from "@/components/auth/AuthModal";
 import { ProfileModal } from "@/components/account/ProfileModal";
 import { TicketBox } from "@/components/account/TicketBox";
 import { createClient } from "@/lib/supabase/client";
@@ -24,7 +23,6 @@ interface DrawHistoryRow {
 
 export default function AccountPage() {
   const { user, loading, signOut } = useAuth();
-  const [showAuth, setShowAuth] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [history, setHistory] = useState<DrawHistoryRow[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -129,9 +127,9 @@ export default function AccountPage() {
             <h1>마이페이지</h1>
             <div className="account-guest">
               <p>로그인하면 뽑기 내역과 계정 정보를 확인할 수 있습니다.</p>
-              <button className="auth-button" onClick={() => setShowAuth(true)}>
+              <a className="auth-button" href="/login?redirect=/account">
                 로그인 / 회원가입
-              </button>
+              </a>
             </div>
           </>
         )}
@@ -338,7 +336,6 @@ export default function AccountPage() {
           </div>
         )}
 
-        {showAuth && <AuthModal initialMode="login" close={() => setShowAuth(false)} />}
         {showProfile && user && (
           <ProfileModal userId={user.id} close={() => setShowProfile(false)} />
         )}

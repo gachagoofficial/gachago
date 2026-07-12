@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { SlotReel, type SlotReelHandle } from "./SlotReel";
 import { PurchaseButton } from "./PurchaseButton";
-import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 import { buildReelSequence, slotReelSettings, type SlotItemData } from "@/lib/slot/helpers";
@@ -49,11 +49,12 @@ type DrawState = "idle" | "loading" | "spinning" | "done" | "error" | "ticket";
  */
 export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
   const reelRef = useRef<SlotReelHandle>(null);
   const [state, setState] = useState<DrawState>("idle");
   const [result, setResult] = useState<DrawResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showAuth, setShowAuth] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -103,9 +104,9 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
   const handleDraw = async () => {
     if (state === "loading" || state === "spinning" || soldOut) return;
 
-    // 미로그인 시 로그인 모달을 띄운다 (userId는 서버 세션에서 확인하므로 여기선 안 보냄)
+    // 미로그인 시 로그인 페이지로 이동 (뽑던 팩으로 돌아오게 redirect)
     if (!user) {
-      setShowAuth(true);
+      router.push(`/login?redirect=${encodeURIComponent(pathname || "/")}`);
       return;
     }
 
@@ -270,7 +271,6 @@ export function GachaDrawMachine({ packId, soldOut }: GachaDrawMachineProps) {
           document.body,
         )}
 
-      {showAuth && <AuthModal initialMode="login" close={() => setShowAuth(false)} />}
     </div>
   );
 }

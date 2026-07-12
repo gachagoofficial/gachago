@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider";
-import { AuthModal } from "./AuthModal";
 
-// Nav 우측의 로그인/로그아웃 UI. 인증 상태에 따라 표시가 바뀐다.
+// Nav 우측의 로그인/로그아웃 UI. 로그인/회원가입은 /login 페이지로 이동.
 export function AuthButton() {
   const { user, loading, signOut } = useAuth();
-  const [authMode, setAuthMode] = useState<"login" | "signup" | null>(null);
+  const pathname = usePathname();
+  const redirect = encodeURIComponent(pathname || "/");
 
   if (loading) {
     return <span className="auth-button auth-button--loading" aria-hidden />;
@@ -25,21 +26,13 @@ export function AuthButton() {
   }
 
   return (
-    <>
-      <div className="auth-button-group">
-        <button className="auth-button" onClick={() => setAuthMode("login")}>
-          로그인
-        </button>
-        <button
-          className="auth-button auth-button--primary"
-          onClick={() => setAuthMode("signup")}
-        >
-          회원가입
-        </button>
-      </div>
-      {authMode && (
-        <AuthModal initialMode={authMode} close={() => setAuthMode(null)} />
-      )}
-    </>
+    <div className="auth-button-group">
+      <Link className="auth-button" href={`/login?redirect=${redirect}`}>
+        로그인
+      </Link>
+      <Link className="auth-button auth-button--primary" href={`/login?mode=signup&redirect=${redirect}`}>
+        회원가입
+      </Link>
+    </div>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { AuthModal } from "@/components/auth/AuthModal";
 import { createClient } from "@/lib/supabase/client";
 import { WritePostModal } from "./WritePostModal";
 import { PostDetailModal } from "./PostDetailModal";
@@ -29,8 +29,8 @@ export function CommunityBoard() {
   const [activeCategory, setActiveCategory] = useState("전체");
   const [query, setQuery] = useState("");
   const [showWrite, setShowWrite] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
   const [openPost, setOpenPost] = useState<Post | null>(null);
+  const router = useRouter();
 
   const load = () => {
     supabase
@@ -57,7 +57,7 @@ export function CommunityBoard() {
 
   const onWriteClick = () => {
     if (!user) {
-      setShowAuth(true);
+      router.push("/login?redirect=/community");
       return;
     }
     setShowWrite(true);
@@ -142,7 +142,6 @@ export function CommunityBoard() {
           }}
         />
       )}
-      {showAuth && <AuthModal initialMode="login" close={() => setShowAuth(false)} />}
     </div>
   );
 }
