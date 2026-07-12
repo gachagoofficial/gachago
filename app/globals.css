@@ -3757,9 +3757,10 @@ button.last-draw-bonus:focus-visible {
   z-index: 100;
   display: grid;
   place-items: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.78);
-  backdrop-filter: blur(18px);
+  padding: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(244,106,31,0.12), transparent 55%), #050505;
+  backdrop-filter: none;
+  overflow-y: auto;
 }
 
 .auth-card,
@@ -3774,9 +3775,15 @@ button.last-draw-bonus:focus-visible {
 
 .auth-card {
   position: relative;
-  width: min(100%, 30rem);
-  border-radius: 1.75rem;
-  padding: 2rem;
+  width: min(100%, 34rem);
+  min-height: 100vh;
+  border: none !important;
+  border-radius: 0;
+  background: transparent !important;
+  padding: 4rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .auth-close {
@@ -5621,3 +5628,13 @@ select option { background: #1a1a1a; color: #fff; }
 .pack-locked-icon { font-size: 28px; }
 .pack-locked-box strong { display: block; font-size: 15px; color: #fff; }
 .pack-locked-box p { font-size: 14px; color: var(--drawzy-glow, #ff8a3d); font-weight: 800; margin-top: 2px; }
+
+/* 전체화면 로그인 페이지 로고 + 닫기 */
+.auth-brand {
+  font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em;
+  color: #fff; margin-bottom: 2.5rem;
+}
+.auth-overlay .auth-close {
+  position: fixed;
+  right: 1.5rem; top: 1.5rem;
+}

@@ -63,6 +63,7 @@ export function AuthModal({ initialMode = "login", close }: AuthModalProps) {
         <button className="auth-close" onClick={close} aria-label="닫기">
           ×
         </button>
+        <div className="auth-brand">GACHA GO</div>
         <p className="section-label">GACHA GO MEMBER</p>
         <h2 className="mt-3 text-3xl font-black">
           {mode === "signup" ? "회원가입" : "로그인"}
