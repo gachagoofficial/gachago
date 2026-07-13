@@ -98,6 +98,22 @@ export function TicketBox({ userId, onOpened }: { userId: string; onOpened: () =
     onOpened(); // 부모(뽑기 내역) 갱신
   };
 
+  // 다음 티켓 바로 열기 (현재 것 닫고 다음 것 오픈)
+  const openNext = async () => {
+    const remaining = (tickets || []).filter((x) => x.id !== opening?.id);
+    onOpened();
+    if (remaining.length === 0) {
+      closeReveal();
+      return;
+    }
+    const next = remaining[0];
+    setTickets(remaining);
+    setOpening(next);
+    setRevealed(false);
+    setTimeout(() => setRevealed(true), 1600);
+    await supabase.rpc("open_ticket", { p_draw_id: next.id, p_user_id: userId });
+  };
+
   if (!tickets || tickets.length === 0) return null;
 
   return (
@@ -151,9 +167,16 @@ export function TicketBox({ userId, onOpened }: { userId: string; onOpened: () =
                     🎉 LAST ONE 보상 : {opening.lastone_name}
                   </div>
                 )}
-                <button className="result-btn result-btn--primary" onClick={closeReveal} style={{ marginTop: 16 }}>
-                  확인
-                </button>
+                <div className="ticket-result-actions">
+                  {(tickets || []).filter((x) => x.id !== opening.id).length > 0 && (
+                    <button className="result-btn result-btn--primary" onClick={openNext}>
+                      계속 열기 ({(tickets || []).filter((x) => x.id !== opening.id).length}장 남음)
+                    </button>
+                  )}
+                  <button className="result-btn" onClick={closeReveal}>
+                    {(tickets || []).filter((x) => x.id !== opening.id).length > 0 ? "그만 열기" : "확인"}
+                  </button>
+                </div>
               </div>
             )}
           </div>,
