@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { allPacks } from "@/lib/data/catalog";
 import type { Pack } from "@/lib/data/types";
-import { GachaDrawMachine } from "@/components/slot/GachaDrawMachine";
+import { BuyButton } from "@/components/packs/detail/BuyButton";
 import { PackShowcaseVisual } from "@/components/packs/detail/PackShowcaseVisual";
 import { RewardLineup } from "@/components/packs/detail/RewardLineup";
 import { LastDrawBonus } from "@/components/packs/detail/LastDrawBonus";
@@ -54,7 +54,7 @@ export default async function PackDetailPage({
 
           {pack.lastDrawBonus && !pack.comingSoon && <LastDrawBonus bonus={pack.lastDrawBonus} />}
 
-          {/* ★ 실제 뽑기 (준비중이면 뽑기 대신 준비중 표시) */}
+          {/* ★ 구매하기 (준비중이면 준비중 표시) */}
           {pack.comingSoon ? (
             <div className="pack-coming-soon">
               <span className="coming-soon__badge">COMING SOON</span>
@@ -63,7 +63,7 @@ export default async function PackDetailPage({
               <Link href="/packs" className="detail-secondary-btn">팩 목록으로</Link>
             </div>
           ) : (
-            <GachaDrawMachine packId={pack.id} soldOut={soldOut} />
+            <BuyButton slug={pack.slug} soldOut={soldOut} />
           )}
 
           <FairnessButton />

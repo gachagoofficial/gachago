@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { createPortal } from "react-dom";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ProfileModal } from "@/components/account/ProfileModal";
 import { TicketBox } from "@/components/account/TicketBox";
+import { PurchasePanel } from "@/components/account/PurchasePanel";
 import { createClient } from "@/lib/supabase/client";
 import { getTier, getNextTier } from "@/lib/membership";
 import { tierConfig } from "@/lib/data/catalog";
@@ -21,8 +23,11 @@ interface DrawHistoryRow {
   rewards: { name: string | null; tier: string | null } | null;
 }
 
-export default function AccountPage() {
+function AccountPageInner() {
   const { user, loading, signOut } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const buyPackSlug = searchParams.get("pack");
   const [showProfile, setShowProfile] = useState(false);
   const [history, setHistory] = useState<DrawHistoryRow[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -136,6 +141,17 @@ export default function AccountPage() {
 
         {!loading && user && (
           <div className="account-info">
+            {/* 구매 대기 팩 (팩 상세에서 구매하기로 넘어온 경우) */}
+            {buyPackSlug && (
+              <PurchasePanel
+                slug={buyPackSlug}
+                onDone={() => {
+                  router.replace("/account");
+                  router.refresh();
+                }}
+              />
+            )}
+
             {/* 상단: 프로필 헤더 + 설정 버튼 */}
             <div className="account-header">
               <div className="account-profile">
@@ -381,5 +397,13 @@ export default function AccountPage() {
           )}
       </div>
     </section>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={<section className="subpage"><div className="subpage-inner"><p>불러오는 중...</p></div></section>}>
+      <AccountPageInner />
+    </Suspense>
   );
 }
